@@ -2,7 +2,7 @@ export const opportunities = [
   {
     id: 1,
     icon: '🤖',
-    iconBg: 'rgba(0,233,106,0.12)',
+    iconBg: 'rgba(72,96,234,0.12)',
     title: 'AI Chatbot สำหรับ LINE OA',
     titleEn: 'AI Chatbot for LINE OA',
     subtitle: 'SaaS · B2B SME · ไทย',
@@ -16,9 +16,9 @@ export const opportunities = [
     budget: {
       total: '฿8,000–25,000',
       breakdown: [
-        { label: 'Dev', color: '#00E96A', pct: 60 },
-        { label: 'API Cost', color: '#7C5CFC', pct: 20 },
-        { label: 'Marketing', color: '#FF6B35', pct: 20 },
+        { label: 'Dev', color: '#4860EA', pct: 60 },
+        { label: 'API Cost', color: '#1FA1C4', pct: 20 },
+        { label: 'Marketing', color: '#6A7290', pct: 20 },
       ],
     },
     income: '฿20K–80K/เดือน',
@@ -29,11 +29,12 @@ export const opportunities = [
     statusType: 'ready',
     competition: 'Manychat (แพง), Chatfuel (ไม่รองรับไทย)',
     gap: 'ราคา + ภาษาไทย + LINE native',
+    gapEn: 'Price + Thai language + LINE-native',
   },
   {
     id: 2,
     icon: '📄',
-    iconBg: 'rgba(255,107,53,0.12)',
+    iconBg: 'rgba(31,161,196,0.12)',
     title: 'AI Template Marketplace ภาษาไทย',
     titleEn: 'AI Template Marketplace (Thai)',
     subtitle: 'Digital Product · Marketplace · SEA',
@@ -47,8 +48,8 @@ export const opportunities = [
     budget: {
       total: '฿0–5,000',
       breakdown: [
-        { label: 'Dev', color: '#00E96A', pct: 30 },
-        { label: 'Content', color: '#FF6B35', pct: 70 },
+        { label: 'Dev', color: '#4860EA', pct: 30 },
+        { label: 'Content', color: '#6A7290', pct: 70 },
       ],
     },
     income: '฿5K–30K/เดือน',
@@ -59,11 +60,12 @@ export const opportunities = [
     statusType: 'ready',
     competition: 'Gumroad (Global), PromptBase',
     gap: 'ภาษาไทย + บริบทธุรกิจไทย',
+    gapEn: 'Thai language + local business context',
   },
   {
     id: 3,
     icon: '🎓',
-    iconBg: 'rgba(124,92,252,0.12)',
+    iconBg: 'rgba(157,174,255,0.16)',
     title: 'AI English Tutor สำหรับคนไทย',
     titleEn: 'AI English Tutor for Thai Learners',
     subtitle: 'EdTech · Subscription · ไทย',
@@ -77,9 +79,9 @@ export const opportunities = [
     budget: {
       total: '฿15,000–50,000',
       breakdown: [
-        { label: 'Dev', color: '#00E96A', pct: 50 },
-        { label: 'Content', color: '#7C5CFC', pct: 30 },
-        { label: 'Marketing', color: '#FF6B35', pct: 20 },
+        { label: 'Dev', color: '#4860EA', pct: 50 },
+        { label: 'Content', color: '#1FA1C4', pct: 30 },
+        { label: 'Marketing', color: '#6A7290', pct: 20 },
       ],
     },
     income: '฿30K–150K/เดือน',
@@ -90,11 +92,12 @@ export const opportunities = [
     statusType: 'build',
     competition: 'Duolingo, Englishscore',
     gap: 'Thai-specific grammar issues + local context',
+    gapEn: 'Thai-specific grammar issues + local context',
   },
   {
     id: 4,
     icon: '🌐',
-    iconBg: 'rgba(255,215,0,0.12)',
+    iconBg: 'rgba(106,114,144,0.14)',
     title: 'AI SEO Content Tool (Affiliate)',
     titleEn: 'AI SEO Content Tool for Affiliates',
     subtitle: 'SaaS · Global Market · USD Income',
@@ -108,9 +111,9 @@ export const opportunities = [
     budget: {
       total: '$200–800 USD',
       breakdown: [
-        { label: 'Dev', color: '#00E96A', pct: 60 },
-        { label: 'API', color: '#7C5CFC', pct: 20 },
-        { label: 'Ads', color: '#FF6B35', pct: 20 },
+        { label: 'Dev', color: '#4860EA', pct: 60 },
+        { label: 'API', color: '#1FA1C4', pct: 20 },
+        { label: 'Ads', color: '#6A7290', pct: 20 },
       ],
     },
     income: '$500–3,000/เดือน',
@@ -121,11 +124,12 @@ export const opportunities = [
     statusType: 'build',
     competition: 'Jasper, Copy.ai, Surfer SEO',
     gap: 'ราคาถูกกว่า + เน้น Affiliate niche',
+    gapEn: 'Lower price + Affiliate-niche focus',
   },
   {
     id: 5,
     icon: '📝',
-    iconBg: 'rgba(0,233,106,0.12)',
+    iconBg: 'rgba(72,96,234,0.12)',
     title: 'AI Resume Builder ไทย-EN',
     titleEn: 'AI Resume Builder (Thai-English)',
     subtitle: 'Freemium · One-time Pay · ไทย',
@@ -139,8 +143,8 @@ export const opportunities = [
     budget: {
       total: '฿3,000–8,000',
       breakdown: [
-        { label: 'Dev', color: '#00E96A', pct: 70 },
-        { label: 'API', color: '#7C5CFC', pct: 30 },
+        { label: 'Dev', color: '#4860EA', pct: 70 },
+        { label: 'API', color: '#1FA1C4', pct: 30 },
       ],
     },
     income: '฿10K–40K/เดือน',
@@ -151,11 +155,12 @@ export const opportunities = [
     statusType: 'ready',
     competition: 'Canva, Novoresume (ไม่รองรับไทย)',
     gap: 'Thai format + bilingual export',
+    gapEn: 'Thai format + bilingual export',
   },
   {
     id: 6,
     icon: '📱',
-    iconBg: 'rgba(255,107,53,0.12)',
+    iconBg: 'rgba(31,161,196,0.12)',
     title: 'AI Social Caption Generator SEA',
     titleEn: 'AI Social Caption Generator (SEA)',
     subtitle: 'B2B Tool · API Resell · SEA',
@@ -169,9 +174,9 @@ export const opportunities = [
     budget: {
       total: '฿2,000–6,000',
       breakdown: [
-        { label: 'Dev', color: '#00E96A', pct: 50 },
-        { label: 'API', color: '#7C5CFC', pct: 30 },
-        { label: 'Marketing', color: '#FF6B35', pct: 20 },
+        { label: 'Dev', color: '#4860EA', pct: 50 },
+        { label: 'API', color: '#1FA1C4', pct: 30 },
+        { label: 'Marketing', color: '#6A7290', pct: 20 },
       ],
     },
     income: '฿8K–35K/เดือน',
@@ -182,6 +187,7 @@ export const opportunities = [
     statusType: 'research',
     competition: 'Hootsuite, Buffer (ไม่มี SEA culture)',
     gap: 'Cultural awareness + local slang',
+    gapEn: 'Cultural awareness + local slang',
   },
 ]
 

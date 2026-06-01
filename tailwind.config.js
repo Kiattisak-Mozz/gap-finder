@@ -3,28 +3,45 @@ export default {
   darkMode: 'class',
   content: ['./index.html', './src/**/*.{js,jsx}'],
   theme: {
+    screens: { xs:'400px', sm:'640px', md:'768px', lg:'1024px', xl:'1280px', '2xl':'1536px' },
     extend: {
       fontFamily: {
-        sans: ['Plus Jakarta Sans', 'sans-serif'],
-        mono: ['Space Mono', 'monospace'],
+        sans:    ['Anuphan', 'Playpen Sans Thai', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+        display: ['Playpen Sans Thai', 'Anuphan', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+        mono:    ['JetBrains Mono', 'ui-monospace', 'monospace'],
       },
       colors: {
-        accent: {
-          green: '#00E96A',
-          orange: '#FF6B35',
-          purple: '#7C5CFC',
-          yellow: '#FFD700',
+        /* ── Brand: cobalt ── */
+        brand: {
+          50:  '#EEF2FF',
+          100: '#E0E7FF',
+          200: '#C3CEFF',
+          300: '#9DAEFF',
+          400: '#6F86F7',
+          500: '#4860EA',   // primary cobalt
+          600: '#3848C9',
+          700: '#2E3AA3',
+          800: '#283284',
+          900: '#1F2660',
+          950: '#141838',
         },
-      },
-      animation: {
-        float: 'float 4s ease-in-out infinite',
-        'float-slow': 'float 6s ease-in-out infinite',
-        'float-fast': 'float 3s ease-in-out infinite',
-      },
-      keyframes: {
-        float: {
-          '0%, 100%': { transform: 'translateY(0px)' },
-          '50%': { transform: 'translateY(-12px)' },
+        /* ── Secondary: cyan-teal ── */
+        cyan2: {
+          400: '#3BBEDC',
+          500: '#1FA1C4',
+          600: '#15809E',
+        },
+        /* ── Surface / cool neutral ── */
+        surface: {
+          0:   '#FFFFFF',
+          50:  '#F7F8FB',
+          100: '#EFF1F7',
+          200: '#E2E5EF',
+          300: '#C7CCDC',
+          600: '#6A7290',
+          700: '#262B3D',
+          800: '#1A1E2C',
+          900: '#12151F',
         },
       },
     },
