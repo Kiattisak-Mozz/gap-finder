@@ -4,38 +4,41 @@ import { plugins } from '../data/opportunities'
 import { Plus } from 'lucide-react'
 
 export default function PluginBar() {
-  const barRef = useRef(null)
+  const ref = useRef(null)
 
   useEffect(() => {
-    gsap.from(barRef.current, { y: 20, opacity: 0, duration: 0.5, ease: 'power3.out', delay: 0.5 })
+    const ctx = gsap.context(() => {
+      gsap.from(ref.current, { y: 16, opacity: 0, duration: 0.45, ease: 'power3.out', delay: 0.4 })
+    })
+    return () => ctx.revert()
   }, [])
 
   return (
     <div
-      ref={barRef}
-      className="flex items-center gap-4 p-4 mb-6 rounded-2xl
+      ref={ref}
+      className="flex items-center gap-4 px-5 py-4 mb-6 rounded-2xl
         bg-white dark:bg-[#13131F]
-        border border-dashed border-gray-200 dark:border-white/10"
+        border border-dashed border-gray-200 dark:border-white/8"
     >
-      <div className="text-2xl">🧩</div>
+      <span className="text-xl">🧩</span>
       <div className="flex-1">
-        <p className="text-xs font-mono font-bold text-accent-purple">PLUGIN SLOTS — เชื่อมต่อ Agent เพิ่มเติม</p>
-        <p className="text-[11px] text-gray-400 mt-0.5">กด + เพื่อเพิ่ม Scout Agent / Trend Watcher / Skeptic หรือ Data Source ใหม่</p>
+        <p className="text-[13px] font-semibold text-violet-600 dark:text-violet-400">Plugin Slots</p>
+        <p className="text-[12px] text-gray-400 mt-0.5">เชื่อมต่อ Scout Agent, Trend Watcher, หรือ Data Source เพิ่มเติม</p>
       </div>
       <div className="flex gap-2">
         {plugins.map((p, i) => (
           <button
             key={i}
             title={p.label}
-            className={`w-9 h-9 rounded-xl flex items-center justify-center text-base border transition-all duration-200
+            className={`w-9 h-9 rounded-xl flex items-center justify-center text-base border transition-all duration-150
               ${p.connected
-                ? 'border-accent-purple/40 bg-accent-purple/10 text-accent-purple hover:bg-accent-purple/20'
+                ? 'border-violet-200 dark:border-violet-500/30 bg-violet-50 dark:bg-violet-500/10 text-violet-600 dark:text-violet-400'
                 : p.isAdd
-                  ? 'border-gray-200 dark:border-white/10 text-gray-400 hover:border-accent-green hover:text-accent-green'
-                  : 'border-gray-200 dark:border-white/10 text-gray-400 hover:border-accent-purple hover:text-accent-purple'
+                  ? 'border-gray-200 dark:border-white/10 text-gray-400 hover:border-emerald-300 hover:text-emerald-500'
+                  : 'border-gray-200 dark:border-white/10 text-gray-400 hover:border-violet-300 hover:text-violet-500'
               }`}
           >
-            {p.isAdd ? <Plus size={16} /> : p.icon}
+            {p.isAdd ? <Plus size={15} /> : p.icon}
           </button>
         ))}
       </div>

@@ -3,39 +3,168 @@
 @tailwind utilities;
 
 @layer base {
-  * {
-    box-sizing: border-box;
+  * { box-sizing: border-box; }
+  html { -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; }
+
+  :root {
+    /* ── Type ── */
+    --font-display: 'Playpen Sans Thai', 'Anuphan', system-ui, sans-serif;
+    --font-sans:    'Anuphan', 'Playpen Sans Thai', system-ui, sans-serif;
+    --font-mono:    'JetBrains Mono', ui-monospace, monospace;
+
+    /* ── Neutrals (cool, cobalt-tinted) ── */
+    --bg:        oklch(0.984 0.004 262);
+    --surface:   oklch(1 0 0);
+    --surface-2: oklch(0.965 0.006 262);
+    --border:    oklch(0.915 0.010 262);
+    --border-2:  oklch(0.860 0.013 262);
+    --text:      oklch(0.235 0.022 262);
+    --text-2:    oklch(0.380 0.022 262);
+    --muted:     oklch(0.520 0.020 262);
+
+    /* ── Brand: cobalt primary ── */
+    --primary:       oklch(0.550 0.185 262);
+    --primary-press: oklch(0.475 0.180 262);
+    --primary-soft:  oklch(0.950 0.038 262);
+    --on-primary:    oklch(0.995 0.008 262);
+
+    /* ── Secondary: cyan-teal (charts / accents) ── */
+    --secondary:      oklch(0.620 0.130 205);
+    --secondary-soft: oklch(0.950 0.040 205);
+
+    /* ── Decision vocabulary ── (fill = graphic; ink = readable text on soft) */
+    --build:      oklch(0.600 0.125 195);
+    --build-soft: oklch(0.950 0.040 195);
+    --build-ink:  oklch(0.450 0.110 195);
+    --park:       oklch(0.560 0.055 262);
+    --park-soft:  oklch(0.952 0.018 262);
+    --park-ink:   oklch(0.430 0.050 262);
+    --scoped-ink: var(--primary-press);
+    --kill:       oklch(0.550 0.170 25);
+    --kill-soft:  oklch(0.955 0.045 25);
+    --kill-ink:   oklch(0.470 0.165 25);
+    --warning:    oklch(0.700 0.150 70);
+
+    /* ── Feature (dark) tiles in light mode ── */
+    --hero-grad: linear-gradient(150deg, oklch(0.305 0.080 262) 0%, oklch(0.225 0.070 262) 58%, oklch(0.175 0.058 262) 100%);
+    --on-hero:   oklch(0.970 0.010 262);
+
+    --ring:        oklch(0.550 0.185 262 / 0.45);
+    --menu-active: var(--primary-soft);
+    --card-shadow: 0 1px 2px oklch(0.50 0.05 262 / 0.06), 0 6px 20px oklch(0.50 0.05 262 / 0.07);
+
+    /* legacy aliases (kept so older refs stay cool) */
+    --accent: var(--secondary);
+    --sage:   var(--build);
+    --hero:   oklch(0.225 0.070 262);
+
+    /* z-index scale */
+    --z-dropdown: 1000;
+    --z-sticky:   1100;
+    --z-backdrop: 1200;
+    --z-modal:    1300;
+    --z-toast:    1400;
   }
 
-  html {
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
+  .dark {
+    --bg:        oklch(0.165 0.018 262);
+    --surface:   oklch(0.205 0.020 262);
+    --surface-2: oklch(0.245 0.022 262);
+    --border:    oklch(0.310 0.022 262);
+    --border-2:  oklch(0.385 0.022 262);
+    --text:      oklch(0.950 0.008 262);
+    --text-2:    oklch(0.795 0.012 262);
+    --muted:     oklch(0.660 0.016 262);
+
+    --primary:       oklch(0.680 0.155 262);
+    --primary-press: oklch(0.620 0.150 262);
+    --primary-soft:  oklch(0.300 0.060 262);
+    --on-primary:    oklch(0.150 0.025 262);
+
+    --secondary:      oklch(0.720 0.110 205);
+    --secondary-soft: oklch(0.300 0.055 205);
+
+    --build:      oklch(0.700 0.110 195);
+    --build-soft: oklch(0.300 0.050 195);
+    --build-ink:  oklch(0.820 0.105 195);
+    --park:       oklch(0.700 0.050 262);
+    --park-soft:  oklch(0.290 0.025 262);
+    --park-ink:   oklch(0.830 0.045 262);
+    --scoped-ink: oklch(0.820 0.120 262);
+    --kill:       oklch(0.660 0.160 25);
+    --kill-soft:  oklch(0.300 0.070 25);
+    --kill-ink:   oklch(0.820 0.140 25);
+    --warning:    oklch(0.780 0.130 70);
+
+    --hero-grad: linear-gradient(150deg, oklch(0.290 0.055 262) 0%, oklch(0.225 0.045 262) 58%, oklch(0.180 0.038 262) 100%);
+    --on-hero:   oklch(0.955 0.010 262);
+
+    --ring:        oklch(0.680 0.155 262 / 0.55);
+    --menu-active: oklch(0.275 0.045 262);
+    --card-shadow: 0 1px 0 oklch(1 0 0 / 0.04), 0 8px 24px oklch(0 0 0 / 0.38);
+
+    --hero:   oklch(0.225 0.045 262);
   }
 
-  ::-webkit-scrollbar {
-    width: 4px;
-    height: 4px;
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-sans);
+    font-weight: 400;
+    font-feature-settings: 'tnum' 0;
+    transition: background 0.3s, color 0.3s;
   }
+  .dark body { font-weight: 350; }
 
-  ::-webkit-scrollbar-track {
-    background: transparent;
-  }
+  h1, h2, h3, .display { font-family: var(--font-display); letter-spacing: -0.01em; }
+  h1, h2, h3 { text-wrap: balance; }
+  .tnum { font-variant-numeric: tabular-nums; }
+  .mono { font-family: var(--font-mono); }
 
-  ::-webkit-scrollbar-thumb {
-    background: #e5e7eb;
-    border-radius: 2px;
-  }
+  ::selection { background: var(--primary-soft); color: var(--primary-press); }
+  ::-webkit-scrollbar { width: 9px; height: 9px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border-2); border-radius: 6px; border: 2px solid transparent; background-clip: content-box; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--muted); background-clip: content-box; }
 
-  .dark ::-webkit-scrollbar-thumb {
-    background: rgba(255, 255, 255, 0.08);
-  }
+  :focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; border-radius: 4px; }
 }
 
 @layer utilities {
-  .line-clamp-2 {
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
+  .hatch {
+    background-image: repeating-linear-gradient(45deg, var(--border-2), var(--border-2) 1.5px, transparent 1.5px, transparent 7px);
   }
+  .ring-soft { box-shadow: 0 0 0 4px var(--ring); }
+  .focus-ring:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+}
+
+/* ── Touch ergonomics: only on coarse pointers (phones/tablets) ── */
+@media (pointer: coarse) {
+  /* Primary interactive controls reach the 44px touch target */
+  aside a, main a[href], .tap-44 { min-height: 44px; }
+  /* Icon-only square buttons become a full 44×44 hit area */
+  main button[aria-label], header button[aria-label] { min-width: 44px; min-height: 44px; }
+  /* Tap feedback (no hover on touch) */
+  button:active, a:active, [role="button"]:active { transform: scale(0.98); }
+}
+/* Neutralise sticky hover after tap on hover-less devices */
+@media (hover: none) {
+  .hover\:bg-\[var\(--surface-2\)\]:hover { background-color: transparent; }
+}
+
+/* ── Motion ── */
+@keyframes pulse-ring { 0% { transform: scale(1); opacity: 0.55; } 100% { transform: scale(2.4); opacity: 0; } }
+.pulse-ring { position: relative; }
+.pulse-ring::after { content: ''; position: absolute; inset: 0; border-radius: 9999px; background: currentColor; animation: pulse-ring 1.9s cubic-bezier(0.22,1,0.36,1) infinite; }
+
+@keyframes page-enter { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+.page-enter { animation: page-enter 0.34s cubic-bezier(0.16,1,0.3,1) both; }
+
+@keyframes shimmer { 0% { background-position: -600px 0 } 100% { background-position: 600px 0 } }
+.skeleton-pulse { background: linear-gradient(90deg, var(--surface-2) 25%, var(--border) 50%, var(--surface-2) 75%); background-size: 600px 100%; animation: shimmer 1.5s infinite linear; border-radius: 8px; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.001ms !important; animation-iteration-count: 1 !important; transition-duration: 0.001ms !important; }
+  .page-enter { animation: none; }
+  .pulse-ring::after { animation: none; opacity: 0; }
 }
