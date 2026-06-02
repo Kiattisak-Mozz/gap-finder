@@ -13,6 +13,7 @@ import { useLang } from '../i18n/LanguageContext'
 import { useTheme } from '../theme/ThemeContext'
 import { opportunities } from '../data/opportunities'
 import DecisionChip from '../components/ui/DecisionChip'
+import RadarGlobe from '../components/RadarGlobe'
 
 /* Dark surface palette (hero, debate, weekly sections) */
 const dp = {
@@ -373,6 +374,9 @@ export default function Landing() {
       <TopNav isTh={isTh} isDark={isDark} toggleLang={toggleLang} toggleTheme={toggleTheme} />
 
       <main>
+
+        {/* ══ §0 RADAR GLOBE (cinematic scroll-camera intro) ════ */}
+        <RadarGlobe />
 
         {/* ══ §1 HERO ══════════════════════════════════════════ */}
         <section style={{ background: dp.bg, color: dp.text, borderBottom: `1px solid ${dp.border}`, overflowX: 'hidden' }}>
