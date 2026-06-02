@@ -9,6 +9,7 @@ import App from './App.jsx'
 import './index.css'
 
 gsap.registerPlugin(ScrollTrigger)
+if (typeof window !== 'undefined') window.__gsapST = { ScrollTrigger }
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>

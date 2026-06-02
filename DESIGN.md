@@ -64,17 +64,40 @@ luminance check (browsers may return raw `oklch()` from `getComputedStyle`, so p
 
 ## Typography
 
-Three families, capped (display + body + mono). Loaded in `index.html` (`<link>`, not `@import`).
+**One family: Noto Sans Thai** for everything (display, body, mono). Loaded in `index.html`
+(`<link>`, not `@import`). Per the product register, a single well-tuned sans with weight
+contrast beats a multi-family pairing here.
 
 | Token | Family | Role |
 |---|---|---|
-| `--font-display` | **Playpen Sans Thai** | brand wordmark, headings (`h1–h3`, `.display`), big numbers |
-| `--font-sans` | **Anuphan** | body, labels, data, table text (the default on `body`) |
-| `--font-mono` | **JetBrains Mono** | tabular figures, the live timer (`.mono`) |
+| `--font-display` | **Noto Sans Thai** | wordmark, headings (`h1–h3`, `.display`), big numbers (heavier weight) |
+| `--font-sans` | **Noto Sans Thai** | body, labels, data, table text (the default on `body`) |
+| `--font-mono` | **Noto Sans Thai** | the live timer / figures — alignment via `tnum`, not a monospace face |
 
-Pairing is contrast-axis (casual handwritten display + geometric Thai/Latin sans). Both
-families carry full Thai + Latin glyphs (the content is bilingual). Headings use
-`.display`; do not put the display font on dense labels or data.
+Hierarchy comes from **weight + size + colour**, not from switching typefaces. Noto Sans Thai
+carries full Thai + Latin glyphs (the content is bilingual). Numbers that must align use the
+`.tnum` class (`font-variant-numeric: tabular-nums`).
+
+### Type scale (px, fixed — product UI, ~1.2 ratio at the structural steps)
+
+Commit to these nine steps; do not introduce half-pixel or in-between sizes.
+
+| px | Role |
+|---|---|
+| 10 | micro eyebrow / axis / meta |
+| 11 | caption |
+| 12 | secondary label |
+| 13 | UI body / default |
+| 15 | card title, in-panel heading (`font-semibold`) |
+| 18 | section heading (`.display`), hero numbers |
+| 22 | secondary big numbers (pipeline, gauge %) |
+| 28 | primary numbers; page title / big stat on mobile |
+| 34 | page title + signal stat (desktop) |
+
+Hierarchy comes from size **and** weight **and** color together, not size alone. Big
+display numbers and the page title carry `tracking-tight`; headings get the global
+`-0.01em`. Numbers use `tnum` (tabular). Mid-range responsive items step one rung at `sm`
+(e.g. signal stat `28 → 34`, matching the page title).
 
 Do **not** add a Tailwind `font-sans` utility on a wrapper to set the body font — the dev
 server can serve a stale generated value. The body font is set once via

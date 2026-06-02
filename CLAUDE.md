@@ -57,7 +57,8 @@ Legacy/unused leftovers (safe-delete candidates, confirm first): `src/pages/Dash
 
 - **Tokens, not hex.** Style with `var(--token)` from `index.css`; both themes are defined
   there. Don't hardcode colors in components.
-- **Fonts**: `.display` for headings/brand/numbers, body inherits Anuphan, `.mono` for figures.
+- **Fonts**: one family, **Noto Sans Thai**, everywhere (display/body/mono). Hierarchy via
+  weight + size, not typeface switching. `.tnum` for aligned figures.
 - **i18n**: every user string goes through `t('key')`; add the key to both `th` and `en` in
   `LanguageContext.jsx`. Unit-bearing data uses `localize(value, field)`.
 - **Bilingual data**: read `lang === 'en' ? opp.titleEn : opp.title` (and `gapEn`/`gap`).

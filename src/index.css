@@ -8,9 +8,9 @@
 
   :root {
     /* ── Type ── */
-    --font-display: 'Playpen Sans Thai', 'Anuphan', system-ui, sans-serif;
-    --font-sans:    'Anuphan', 'Playpen Sans Thai', system-ui, sans-serif;
-    --font-mono:    'JetBrains Mono', ui-monospace, monospace;
+    --font-display: 'Noto Sans Thai', system-ui, sans-serif;
+    --font-sans:    'Noto Sans Thai', system-ui, sans-serif;
+    --font-mono:    'Noto Sans Thai', ui-monospace, monospace;
 
     /* ── Neutrals (cool, cobalt-tinted) ── */
     --bg:        oklch(0.984 0.004 262);
@@ -131,11 +131,113 @@
 }
 
 @layer utilities {
+  .landing-hero-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    align-items: center;
+    gap: 2rem;
+    width: 100%;
+  }
+  .landing-hero-grid > * {
+    min-width: 0;
+  }
+  @media (max-width: 639px) {
+    .landing-top-nav {
+      max-width: 320px !important;
+      margin-left: 16px !important;
+      margin-right: 0 !important;
+      padding-left: 0 !important;
+      padding-right: 0 !important;
+    }
+    header > div,
+    main,
+    section {
+      max-width: 100vw;
+    }
+    .landing-hero-grid {
+      max-width: 100vw;
+      overflow: hidden;
+    }
+    .landing-hero-grid h1 {
+      max-width: min(320px, calc(100vw - 32px)) !important;
+      font-size: 1.875rem !important;
+      line-height: 1.12 !important;
+      letter-spacing: -0.015em !important;
+      text-wrap: pretty;
+    }
+    .landing-hero-grid p,
+    .landing-hero-grid aside {
+      max-width: min(320px, calc(100vw - 32px)) !important;
+    }
+    .landing-hero-grid p {
+      font-size: 0.9375rem !important;
+      line-height: 1.72 !important;
+    }
+  }
+  @media (min-width: 768px) {
+    .landing-hero-grid {
+      grid-template-columns: minmax(0, 1fr) 300px;
+      gap: 2rem;
+    }
+  }
+  @media (min-width: 1024px) {
+    .landing-hero-grid {
+      grid-template-columns: minmax(0, 0.98fr) minmax(360px, 0.72fr);
+      gap: 3rem;
+    }
+  }
   .hatch {
     background-image: repeating-linear-gradient(45deg, var(--border-2), var(--border-2) 1.5px, transparent 1.5px, transparent 7px);
   }
   .ring-soft { box-shadow: 0 0 0 4px var(--ring); }
   .focus-ring:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+}
+
+/* ── Game-like motion layer (pointer-reactive, hover devices only) ── */
+.tilt { transform-style: preserve-3d; }
+.glare {
+  position: absolute; inset: 0; border-radius: inherit; pointer-events: none; z-index: 0;
+  opacity: 0; transition: opacity 0.25s ease;
+  background: radial-gradient(280px circle at var(--gx, 50%) var(--gy, 50%),
+    oklch(1 0 0 / 0.16), transparent 60%);
+}
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  .group:hover > .glare, .group:focus-visible > .glare { opacity: 1; }
+  .tilt { will-change: transform; }
+}
+
+/* one-shot sheen sweep across a hero surface */
+.sheen-host::after {
+  content: ''; position: absolute; top: 0; bottom: 0; left: 0; width: 40%;
+  pointer-events: none; border-radius: inherit;
+  background: linear-gradient(105deg, transparent, oklch(1 0 0 / 0.14) 50%, transparent);
+  transform: translateX(-160%) skewX(-16deg);
+}
+@keyframes sheen-sweep { to { transform: translateX(320%) skewX(-16deg); } }
+.sheen-host.sheen-go::after { animation: sheen-sweep 1.15s cubic-bezier(0.22,1,0.36,1) 0.35s both; }
+
+/* pointer-tracked glow blob (hero) */
+.glow-blob {
+  position: absolute; width: 360px; height: 360px; border-radius: 9999px; pointer-events: none;
+  left: var(--gx, 50%); top: var(--gy, 50%); transform: translate(-50%, -50%);
+  background: radial-gradient(circle, var(--secondary), transparent 62%);
+  opacity: 0; transition: opacity 0.35s ease; filter: blur(8px);
+}
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  .group:hover > .glow-blob { opacity: 0.16; }
+}
+
+/* primary action: glow + press feedback */
+.btn-glow { transition: box-shadow 0.25s ease, transform 0.12s ease; }
+@media (hover: hover) {
+  .btn-glow:hover { box-shadow: 0 0 0 3px var(--ring), 0 10px 28px oklch(0.55 0.185 262 / 0.32); }
+}
+.btn-glow:active { transform: scale(0.97); }
+
+@media (prefers-reduced-motion: reduce) {
+  .sheen-host::after, .glow-blob { display: none; }
+  .btn-glow { transition: none; }
+  .btn-glow:active { transform: none; }
 }
 
 /* ── Touch ergonomics: only on coarse pointers (phones/tablets) ── */
