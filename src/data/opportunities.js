@@ -91,7 +91,7 @@ export const opportunities = [
     status: 'IN SCOPE',
     statusType: 'build',
     competition: 'Duolingo, Englishscore',
-    gap: 'Thai-specific grammar issues + local context',
+    gap: 'ไวยากรณ์เฉพาะคนไทย + บริบทการใช้ชีวิตท้องถิ่น',
     gapEn: 'Thai-specific grammar issues + local context',
   },
   {

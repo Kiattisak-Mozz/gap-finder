@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react'
 import { gsap } from 'gsap'
-import { NavLink } from 'react-router-dom'
+import { NavLink, Link } from 'react-router-dom'
 import {
   LayoutDashboard, ListTodo, ScanSearch,
   BarChart2, FolderOpen, Settings, HelpCircle, LogOut, Download,
@@ -9,7 +9,7 @@ import { useLang } from '../../i18n/LanguageContext'
 import Logo from '../ui/Logo'
 
 const menu = [
-  { to: '/',              icon: LayoutDashboard, labelKey: 'nav.dashboard' },
+  { to: '/dashboard',     icon: LayoutDashboard, labelKey: 'nav.dashboard' },
   { to: '/opportunities', icon: ListTodo,        labelKey: 'nav.opportunities', badge: '6' },
   { to: '/scanner',       icon: ScanSearch,      labelKey: 'nav.scanner' },
   { to: '/trends',        icon: BarChart2,       labelKey: 'nav.analytics' },
@@ -76,7 +76,9 @@ export default function Sidebar({ onClose }) {
 
       {/* Logo */}
       <div className="flex items-center px-5 h-[64px] flex-shrink-0">
-        <Logo size={32} variant="full" />
+        <Link to="/" onClick={onClose}>
+          <Logo size={32} variant="full" />
+        </Link>
       </div>
 
       <div className="flex-1 overflow-y-auto py-4 px-3 flex flex-col gap-5">
