@@ -44,35 +44,35 @@ const PHASES = [
     descEn: 'View gaps, compare, decide BUILD/PARK',
   },
   {
-    phase: 2, icon: Radar, status: 'coming',
+    phase: 2, icon: Radar, status: 'live',
     th: 'Scout + Gap Finder',
     en: 'Scout + Gap Finder',
     descTh: 'สแกน TechCrunch, YC, Reddit ทุกสัปดาห์',
     descEn: 'Scan TechCrunch, YC, Reddit each week',
   },
   {
-    phase: 3, icon: MessageSquare, status: 'coming',
+    phase: 3, icon: MessageSquare, status: 'live',
     th: 'Brainstormer + Debate',
     en: 'Brainstormer + Debate',
     descTh: 'สร้าง 3-5 concept แล้วให้ Skeptic + Realist โจมตี',
     descEn: 'Generate 3–5 concepts, Skeptic + Realist push back',
   },
   {
-    phase: 4, icon: Target, status: 'coming',
+    phase: 4, icon: Target, status: 'live',
     th: 'Synthesizer',
     en: 'Synthesizer',
     descTh: 'ตัดสินใจสุดท้าย + รายงานอัตโนมัติทุกจันทร์',
     descEn: 'Final verdict + auto Monday report',
   },
   {
-    phase: 5, icon: TrendingUp, status: 'coming',
+    phase: 5, icon: TrendingUp, status: 'live',
     th: 'Trend Watcher',
     en: 'Trend Watcher',
     descTh: 'monitor ตลอดเวลา แจ้งเตือนเมื่อ signal แรงขึ้น',
     descEn: 'Background monitor, alert when weak signals spike',
   },
   {
-    phase: 6, icon: Puzzle, status: 'coming',
+    phase: 6, icon: Puzzle, status: 'live',
     th: 'Plugin System',
     en: 'Plugin System',
     descTh: 'เชื่อม agent ใหม่ได้เองผ่าน API',
@@ -277,28 +277,20 @@ function OpCard({ opp, lang, localize }) {
 
 /* ─── PipelineNode ───────────────────────────────────────── */
 function PipelineNode({ phase, isTh }) {
-  const { icon: Icon, status, th, en, descTh, descEn } = phase
-  const isLive = status === 'live'
+  const { icon: Icon, th, en, descTh, descEn } = phase
   return (
     <div className="flex flex-col items-center text-center gap-2.5 pt-1" data-pipe-node>
       <div className="relative z-10 w-10 h-10 rounded-full grid place-items-center flex-shrink-0"
         style={{
-          background: isLive ? 'var(--primary)' : 'var(--surface-2)',
-          border: `2px solid ${isLive ? 'var(--primary)' : 'var(--border)'}`,
-          color: isLive ? 'var(--on-primary)' : 'var(--muted)',
-          boxShadow: isLive ? '0 0 0 4px var(--primary-soft)' : 'none',
+          background: 'var(--primary)',
+          border: '2px solid var(--primary)',
+          color: 'var(--on-primary)',
+          boxShadow: '0 0 0 4px var(--primary-soft)',
         }}>
         <Icon size={17} strokeWidth={2} />
       </div>
-      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full"
-        style={{
-          background: isLive ? 'var(--build-soft)' : 'var(--surface-2)',
-          color:      isLive ? 'var(--build-ink)'  : 'var(--muted)',
-        }}>
-        {isLive ? (isTh ? 'ใช้ได้แล้ว' : 'Available') : (isTh ? 'กำลังสร้าง' : 'Coming')}
-      </span>
       <div>
-        <p className="text-[13px] font-bold leading-snug" style={{ color: isLive ? 'var(--text)' : 'var(--text-2)' }}>
+        <p className="text-[13px] font-bold leading-snug" style={{ color: 'var(--text)' }}>
           {isTh ? th : en}
         </p>
         <p className="text-[11px] mt-1 leading-snug" style={{ color: 'var(--muted)', maxWidth: 140 }}>
@@ -311,17 +303,16 @@ function PipelineNode({ phase, isTh }) {
 
 /* ─── PipelineNodeMobile (vertical layout) ───────────────── */
 function PipelineNodeMobile({ phase, isTh, isLast }) {
-  const { icon: Icon, status, th, en, descTh, descEn } = phase
-  const isLive = status === 'live'
+  const { icon: Icon, th, en, descTh, descEn } = phase
   return (
     <div className="flex gap-4 relative">
       {/* left track */}
       <div className="flex flex-col items-center flex-shrink-0" style={{ width: 40 }}>
         <div className="w-10 h-10 rounded-full grid place-items-center flex-shrink-0 z-10 relative"
           style={{
-            background: isLive ? 'var(--primary)' : 'var(--surface-2)',
-            border: `2px solid ${isLive ? 'var(--primary)' : 'var(--border)'}`,
-            color: isLive ? 'var(--on-primary)' : 'var(--muted)',
+            background: 'var(--primary)',
+            border: '2px solid var(--primary)',
+            color: 'var(--on-primary)',
           }}>
           <Icon size={17} strokeWidth={2} />
         </div>
@@ -332,16 +323,9 @@ function PipelineNodeMobile({ phase, isTh, isLast }) {
       {/* content */}
       <div style={{ paddingBottom: isLast ? 0 : 20, paddingTop: 8, flex: 1 }}>
         <div className="flex items-center gap-2 flex-wrap" style={{ marginBottom: 4 }}>
-          <p className="text-[13px] font-bold" style={{ color: isLive ? 'var(--text)' : 'var(--text-2)' }}>
+          <p className="text-[13px] font-bold" style={{ color: 'var(--text)' }}>
             {isTh ? th : en}
           </p>
-          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full"
-            style={{
-              background: isLive ? 'var(--build-soft)' : 'var(--surface-2)',
-              color:      isLive ? 'var(--build-ink)'  : 'var(--muted)',
-            }}>
-            {isLive ? (isTh ? 'ใช้ได้แล้ว' : 'Available') : (isTh ? 'กำลังสร้าง' : 'Coming')}
-          </span>
         </div>
         <p className="text-[12px] leading-relaxed" style={{ color: 'var(--muted)' }}>
           {isTh ? descTh : descEn}
@@ -465,8 +449,8 @@ export default function Landing() {
             </h2>
             <p style={{ margin: '12px 0 0', fontSize: 15, lineHeight: 1.7, color: 'var(--text-2)', maxWidth: '60ch' }}>
               {isTh
-                ? 'แต่ละ phase เพิ่มชั้นการกรองและ challenge จนเหลือแต่ข้อมูลที่พร้อมตัดสินใจ Phase 1 ใช้ได้แล้ว Phase 2-6 กำลังสร้าง'
-                : 'Each phase adds a layer of filtering and challenge until only decision-ready data remains. Phase 1 is live. Phases 2–6 are in progress.'}
+                ? 'แต่ละขั้นตอนเพิ่มชั้นการกรองและ challenge จนเหลือแต่ข้อมูลที่พร้อมตัดสินใจ ครบทั้ง 6 ระบบ'
+                : 'Each step adds a layer of filtering and challenge until only decision-ready data remains. All 6 systems are running.'}
             </p>
           </div>
 
@@ -493,10 +477,7 @@ export default function Landing() {
 
             <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3" style={{ marginBottom: 32 }}>
               <div style={{ maxWidth: 560 }}>
-                <span style={{ fontSize: 11, fontWeight: 700, color: dp.secondary, letterSpacing: '0.04em' }}>
-                  {isTh ? 'Phase 3 · Preview' : 'Phase 3 · Preview'}
-                </span>
-                <h2 style={{ margin: '8px 0 0', fontSize: 'clamp(1.3rem, 2.5vw, 1.75rem)', fontWeight: 800, letterSpacing: '-0.02em', color: dp.text, lineHeight: 1.2 }}>
+                <h2 style={{ margin: 0, fontSize: 'clamp(1.3rem, 2.5vw, 1.75rem)', fontWeight: 800, letterSpacing: '-0.02em', color: dp.text, lineHeight: 1.2 }}>
                   {isTh ? 'ทุกไอเดียถูก challenge ก่อนถึงคุณ' : 'Every idea gets challenged before it reaches you'}
                 </h2>
                 <p style={{ margin: '10px 0 0', fontSize: 14, lineHeight: 1.7, color: dp.text2 }}>
@@ -631,8 +612,8 @@ export default function Landing() {
                 </h2>
                 <p style={{ margin: '8px 0 0', fontSize: 14, color: 'var(--text-2)', lineHeight: 1.6, maxWidth: '56ch' }}>
                   {isTh
-                    ? 'ข้อมูลชุด Phase 1 พร้อมใช้ตอนนี้ รายละเอียดเต็มอยู่ในแดชบอร์ด'
-                    : 'Phase 1 data is live now. Full details are in the dashboard.'}
+                    ? 'รายละเอียดเต็มอยู่ในแดชบอร์ด'
+                    : 'Full details are in the dashboard.'}
                 </p>
               </div>
               <Link to="/opportunities" className="inline-flex items-center gap-2 focus-ring flex-shrink-0"
@@ -656,10 +637,7 @@ export default function Landing() {
 
             <div className="grid md:grid-cols-2 gap-8 md:gap-16 items-center">
               <div>
-                <span style={{ fontSize: 11, fontWeight: 700, color: dp.secondary, letterSpacing: '0.04em' }}>
-                  {isTh ? 'Phase 4 · Preview' : 'Phase 4 · Preview'}
-                </span>
-                <h2 style={{ margin: '8px 0 0', fontSize: 'clamp(1.3rem, 2.5vw, 1.75rem)', fontWeight: 800, letterSpacing: '-0.02em', color: dp.text, lineHeight: 1.2 }}>
+                <h2 style={{ margin: 0, fontSize: 'clamp(1.3rem, 2.5vw, 1.75rem)', fontWeight: 800, letterSpacing: '-0.02em', color: dp.text, lineHeight: 1.2 }}>
                   {isTh ? 'รายงานอัตโนมัติทุกต้นสัปดาห์' : 'Automated report every Monday'}
                 </h2>
                 <p style={{ margin: '12px 0 0', fontSize: 15, lineHeight: 1.75, color: dp.text2 }}>
