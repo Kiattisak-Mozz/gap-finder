@@ -55,6 +55,7 @@ const dict = {
     'opp.gap': 'ช่องว่าง',
     'opp.budgetStart': 'งบเริ่มต้น',
     'opp.income': 'รายได้คาด',
+    'opp.detail': 'ดูรายละเอียด',
     /* Bottom */
     'market.title': 'ความเคลื่อนไหวตลาด',
     'rate.title': 'อัตราการตัดสินใจ',
@@ -133,6 +134,7 @@ const dict = {
     'opp.gap': 'The gap',
     'opp.budgetStart': 'Starting budget',
     'opp.income': 'Est. income',
+    'opp.detail': 'View details',
     'market.title': 'Market activity',
     'rate.title': 'Decision rate',
     'rate.sub': 'gaps evaluated',

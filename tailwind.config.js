@@ -6,9 +6,9 @@ export default {
     screens: { xs:'400px', sm:'640px', md:'768px', lg:'1024px', xl:'1280px', '2xl':'1536px' },
     extend: {
       fontFamily: {
-        sans:    ['Anuphan', 'Playpen Sans Thai', 'ui-sans-serif', 'system-ui', 'sans-serif'],
-        display: ['Playpen Sans Thai', 'Anuphan', 'ui-sans-serif', 'system-ui', 'sans-serif'],
-        mono:    ['JetBrains Mono', 'ui-monospace', 'monospace'],
+        sans:    ['Noto Sans Thai', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+        display: ['Noto Sans Thai', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+        mono:    ['Noto Sans Thai', 'ui-monospace', 'monospace'],
       },
       colors: {
         /* ── Brand: cobalt ── */

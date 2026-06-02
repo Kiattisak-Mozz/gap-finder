@@ -3,6 +3,7 @@ import { Bell, Mail, Search, X } from 'lucide-react'
 import { useTheme } from '../../theme/ThemeContext'
 import { useLang } from '../../i18n/LanguageContext'
 import Sidebar from './Sidebar'
+import Logo from '../ui/Logo'
 
 export default function Layout({ children }) {
   const { isDark, toggle } = useTheme()
@@ -148,8 +149,9 @@ export default function Layout({ children }) {
             <button className="focus-ring flex items-center gap-2.5 rounded-xl p-0 sm:px-3 sm:py-1.5 cursor-pointer sm:ml-1 sm:border"
               aria-label="Open account menu"
               style={{ background: 'var(--surface)', borderColor: 'var(--border)' }}>
-              <div className="display w-7 h-7 rounded-full flex items-center justify-center text-[13px] font-bold flex-shrink-0"
-                style={{ background: 'var(--primary)', color: 'var(--on-primary)' }}>G</div>
+              <div className="w-7 h-7 flex items-center justify-center flex-shrink-0">
+                <Logo size={28} variant="mark" />
+              </div>
               <div className="hidden sm:block text-left">
                 <p className="text-[12px] font-semibold leading-tight" style={{ color: 'var(--text)' }}>Gap User</p>
                 <p className="text-[10px] leading-tight" style={{ color: 'var(--muted)' }}>finder@gap.ai</p>
@@ -159,7 +161,7 @@ export default function Layout({ children }) {
         </header>
 
         {/* Page */}
-        <main className="flex-1 overflow-y-auto" style={{ background: 'var(--bg)' }}>
+        <main id="app-scroll" className="flex-1 overflow-y-auto" style={{ background: 'var(--bg)' }}>
           {children}
         </main>
       </div>

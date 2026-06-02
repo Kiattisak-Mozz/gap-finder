@@ -6,6 +6,7 @@ import {
   BarChart2, FolderOpen, Settings, HelpCircle, LogOut, Download,
 } from 'lucide-react'
 import { useLang } from '../../i18n/LanguageContext'
+import Logo from '../ui/Logo'
 
 const menu = [
   { to: '/',              icon: LayoutDashboard, labelKey: 'nav.dashboard' },
@@ -74,14 +75,8 @@ export default function Sidebar({ onClose }) {
       style={{ background: 'var(--surface)' }}>
 
       {/* Logo */}
-      <div className="flex items-center gap-2.5 px-5 h-[64px] flex-shrink-0">
-        <div className="w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0"
-          style={{ background: 'var(--primary)' }}>
-          <span className="display text-[13px] font-bold" style={{ color: 'var(--on-primary)' }}>G</span>
-        </div>
-        <span className="display text-[17px] font-bold tracking-tight">
-          <span style={{ color: 'var(--text)' }}>Gap</span><span style={{ color: 'var(--primary)' }}>Finder</span>
-        </span>
+      <div className="flex items-center px-5 h-[64px] flex-shrink-0">
+        <Logo size={32} variant="full" />
       </div>
 
       <div className="flex-1 overflow-y-auto py-4 px-3 flex flex-col gap-5">
