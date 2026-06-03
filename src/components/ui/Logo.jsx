@@ -1,8 +1,12 @@
-export default function Logo({ variant = 'full', size = 32, className = '' }) {
+export default function Logo({ variant = 'full', size = 32, className = '', onDark = false }) {
   const textSize = Math.round(size * 0.53)
 
+  // When placed on a dark backdrop (e.g. transparent nav over the globe hero),
+  // override --text locally so the var(--text) glyph + "Gap" wordmark stay light.
+  const tone = onDark ? { '--text': 'oklch(0.965 0.008 262)' } : undefined
+
   return (
-    <div className={`flex items-center gap-2.5 ${className}`} role="img" aria-label="Gap Finder">
+    <div className={`flex items-center gap-2.5 ${className}`} role="img" aria-label="Gap Finder" style={tone}>
       <svg
         width={size} height={size}
         viewBox="0 0 500 500" fill="none"

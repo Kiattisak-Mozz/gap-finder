@@ -1,17 +1,21 @@
 /**
  * RadarGlobe — cinematic scroll-camera intro for the Landing page.
  *
- * A real Three.js globe (NASA night-lights texture) that the camera flies
- * into as the user scrolls: whole earth → SEA → Thailand cluster → BUILD verdict.
- * Driven by GSAP ScrollTrigger (scrubbed, pinned). HTML overlay cards carry real
- * data from data/opportunities.js and fade in stage-by-stage.
+ * A real Three.js globe that the camera flies into as the user scrolls:
+ * whole earth → SEA → Thailand cluster → BUILD verdict. Driven by a scrubbed,
+ * pinned GSAP ScrollTrigger. HTML overlay cards carry real opportunity data and
+ * fade in stage-by-stage.
  *
- * Landing scrolls in the WINDOW (it is not inside the <main#app-scroll> shell),
- * so ScrollTrigger uses the default window scroller here.
+ * Theme (Option C): NIGHT earth in dark mode, DAY earth in light mode. The scene
+ * is built ONCE and the theme is applied by mutating existing materials/lights —
+ * no re-init — so toggling theme never flickers and both textures stay cached.
  *
- * Theme-aware: scene background, atmosphere and overlay glass follow the active
- * theme (re-inits the scene on toggle). Reduced-motion and WebGL-failure both
- * fall back to a static, fully-readable composition.
+ * Responsive: the camera distance is fit to the viewport aspect every resize, so
+ * the FULL globe is visible at stage 0 on any screen size.
+ *
+ * Landing scrolls in the WINDOW (not the <main#app-scroll> shell), so ScrollTrigger
+ * uses the default window scroller here. Reduced-motion / WebGL-failure fall back
+ * to a static, fully-readable composition.
  */
 
 import { useEffect, useRef, useState } from 'react'
@@ -48,16 +52,14 @@ function latLon(lat, lon, r = 1) {
   ]
 }
 
-/* Map a subset of opportunities onto real cities for the markers + cards */
 const oppById = id => opportunities.find(o => o.id === id)
 const CITIES = [
-  { name: 'Bangkok',   nameTh: 'กรุงเทพฯ',   lat: 13.75, lon: 100.52, opp: oppById(1) },
-  { name: 'Chiang Mai',nameTh: 'เชียงใหม่',  lat: 18.79, lon: 98.99,  opp: oppById(3) },
-  { name: 'Phuket',    nameTh: 'ภูเก็ต',     lat: 7.88,  lon: 98.39,  opp: oppById(5) },
-  { name: 'Jakarta',   nameTh: 'จาการ์ตา',   lat: -6.20, lon: 106.85, opp: oppById(6) },
+  { name: 'Bangkok',    nameTh: 'กรุงเทพฯ',  lat: 13.75, lon: 100.52, opp: oppById(1) },
+  { name: 'Chiang Mai', nameTh: 'เชียงใหม่', lat: 18.79, lon: 98.99,  opp: oppById(3) },
+  { name: 'Phuket',     nameTh: 'ภูเก็ต',    lat: 7.88,  lon: 98.39,  opp: oppById(5) },
+  { name: 'Jakarta',    nameTh: 'จาการ์ตา',  lat: -6.20, lon: 106.85, opp: oppById(6) },
 ].filter(c => c.opp)
 
-/* Stage copy (camera beats) */
 const STAGE_COPY = {
   th: [
     'Scout กำลังสแกนตลาดทั่วโลก…',
@@ -78,21 +80,34 @@ export default function RadarGlobe() {
   const { isDark } = useTheme()
   const isTh = lang === 'th'
 
-  /* The globe canvas is a "window to space" — dark in both themes. Text painted
-     directly on it must stay light-on-dark regardless of theme (cards use tokens). */
+  /* Text painted directly on the globe stays light-on-dark in BOTH themes
+     (space backdrop is dark either way). Cards use design tokens and adapt. */
   const onGlobe = {
     text: 'oklch(0.965 0.008 262)',
-    text2: 'oklch(0.815 0.014 262)',
-    muted: 'oklch(0.680 0.018 262)',
-    accent: 'oklch(0.800 0.130 210)',
+    text2: 'oklch(0.840 0.014 262)',
+    muted: 'oklch(0.720 0.018 262)',
+    accent: 'oklch(0.820 0.130 205)',
   }
 
   const wrapRef = useRef(null)
   const canvasRef = useRef(null)
+  const sceneRef = useRef(null)      // mutable scene handles for theme-swap
+  const isDarkRef = useRef(isDark)
+  isDarkRef.current = isDark
+
   const [stage, setStage] = useState(0)
   const [fallback, setFallback] = useState(false)
+  const [isNarrow, setIsNarrow] = useState(
+    () => typeof window !== 'undefined' && window.matchMedia('(max-width: 640px)').matches
+  )
 
-  /* counts for the market-overview panel */
+  useEffect(() => {
+    const mq = window.matchMedia('(max-width: 640px)')
+    const h = e => setIsNarrow(e.matches)
+    mq.addEventListener('change', h)
+    return () => mq.removeEventListener('change', h)
+  }, [])
+
   const counts = {
     build: opportunities.filter(o => o.statusType === 'ready').length,
     scoped: opportunities.filter(o => o.statusType === 'build').length,
@@ -101,6 +116,7 @@ export default function RadarGlobe() {
   const total = opportunities.length
   const featured = CITIES.find(c => c.opp.statusType === 'ready')?.opp || opportunities[0]
 
+  /* ── Build the scene ONCE ──────────────────────────────────── */
   useEffect(() => {
     if (rm() || !hasWebGL()) { setFallback(true); return }
 
@@ -123,22 +139,18 @@ export default function RadarGlobe() {
         Vector3, Clock,
       } = T
 
-      /* theme-driven palette */
-      const cyan = new Color(0x36c6e6)
-      const cobalt = new Color(0x4860ea)
-      const bg = isDark ? new Color(0x0a0e1a) : new Color(0x0c1326)
-
       scene = new Scene()
-      scene.background = null
+      const R = 1
 
-      const camera = new PerspectiveCamera(42, 1, 0.1, 100)
-      camera.position.set(0, 0.15, 3.45)
+      const camera = new PerspectiveCamera(40, 1, 0.1, 100)
+      camera.position.set(0, 0, 3.5)
       const camTarget = new Vector3(0, 0, 0)
 
-      renderer = new WebGLRenderer({ canvas: canvasRef.current, antialias: true, alpha: true })
+      renderer = new WebGLRenderer({ canvas: canvasRef.current, antialias: true, alpha: false })
       renderer.setPixelRatio(Math.min(devicePixelRatio, 2))
-      renderer.setClearColor(bg, isDark ? 1 : 1)
 
+      /* fit the full globe to the viewport on resize (responsive) */
+      let fitZ = 3.5
       const resize = () => {
         const el = canvasRef.current
         if (!el) return
@@ -146,51 +158,47 @@ export default function RadarGlobe() {
         renderer.setSize(w, h, false)
         camera.aspect = w / h
         camera.updateProjectionMatrix()
+        const vFov = camera.fov * Math.PI / 180
+        const hFov = 2 * Math.atan(Math.tan(vFov / 2) * camera.aspect)
+        const half = Math.min(vFov, hFov) / 2
+        fitZ = (R / Math.sin(half)) * 1.18   // 1.18 → full globe with margin
       }
       resize()
       ro = new ResizeObserver(resize)
       if (canvasRef.current) ro.observe(canvasRef.current)
 
-      /* ── Globe group (rotates) ─────────────────── */
+      /* globe group (rotates) */
       const globe = new Group()
-      globe.rotation.y = 2.30   // start over the Indian Ocean, tween Thailand to front
+      globe.rotation.y = 2.30
       scene.add(globe)
 
-      const earthMat = new MeshStandardMaterial({
-        color: isDark ? 0x8899bb : 0xb9c6e6,
-        emissive: new Color(0xffd9a0),
-        emissiveIntensity: isDark ? 1.15 : 0.85,
-        roughness: 1, metalness: 0,
-      })
-      const earth = new Mesh(new SphereGeometry(1, 96, 96), earthMat)
+      const earthMat = new MeshStandardMaterial({ roughness: 1, metalness: 0 })
+      const earth = new Mesh(new SphereGeometry(R, 96, 96), earthMat)
       globe.add(earth)
 
       const loader = new TextureLoader()
-      loader.load('/textures/earth-night.jpg', tex => {
-        tex.colorSpace = SRGBColorSpace
-        earthMat.map = tex
-        earthMat.emissiveMap = tex
-        earthMat.needsUpdate = true
-      })
+      const onTex = t => { t.colorSpace = SRGBColorSpace; earthMat.needsUpdate = true }
+      const nightTex = loader.load('/textures/earth-night.jpg', onTex); nightTex.colorSpace = SRGBColorSpace
 
       /* atmosphere rim glow */
       const atmMat = new ShaderMaterial({
         transparent: true, side: BackSide, blending: AdditiveBlending, depthWrite: false,
-        uniforms: { glow: { value: cyan }, power: { value: isDark ? 3.0 : 3.6 }, strength: { value: isDark ? 0.9 : 0.55 } },
+        uniforms: { glow: { value: new Color(0x36c6e6) }, power: { value: 3.0 }, strength: { value: 0.9 } },
         vertexShader: 'varying vec3 vN; void main(){ vN = normalize(normalMatrix * normal); gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0); }',
         fragmentShader: 'varying vec3 vN; uniform vec3 glow; uniform float power; uniform float strength; void main(){ float i = pow(0.72 - dot(vN, vec3(0.0,0.0,1.0)), power); gl_FragColor = vec4(glow, 1.0) * i * strength; }',
       })
-      const atm = new Mesh(new SphereGeometry(1, 64, 64), atmMat)
+      const atm = new Mesh(new SphereGeometry(R, 64, 64), atmMat)
       atm.scale.setScalar(1.16)
       scene.add(atm)
 
       /* lights */
-      scene.add(new AmbientLight(0xffffff, isDark ? 0.55 : 0.9))
-      const dir = new DirectionalLight(0xcfe0ff, isDark ? 1.0 : 1.3)
-      dir.position.set(-2, 1, 2.5)
-      scene.add(dir)
+      const ambient = new AmbientLight(0xffffff, 0.55)
+      scene.add(ambient)
+      const sun = new DirectionalLight(0xfff4e0, 0.7)
+      sun.position.set(0.4, 0.35, 1)
+      scene.add(sun)
 
-      /* starfield (depth) */
+      /* starfield */
       const starCount = 900
       const sp = new Float32Array(starCount * 3)
       for (let i = 0; i < starCount; i++) {
@@ -203,58 +211,66 @@ export default function RadarGlobe() {
       }
       const starGeo = new BufferGeometry()
       starGeo.setAttribute('position', new BufferAttribute(sp, 3))
-      const stars = new Points(starGeo, new PointsMaterial({
-        color: isDark ? 0x9fb2d8 : 0x6b80b8, size: 0.06, sizeAttenuation: true,
-        transparent: true, opacity: isDark ? 0.7 : 0.35,
-      }))
+      const starMat = new PointsMaterial({ color: 0x9fb2d8, size: 0.06, sizeAttenuation: true, transparent: true, opacity: 0.7 })
+      const stars = new Points(starGeo, starMat)
       scene.add(stars)
 
-      /* ── City markers (children of globe) ──────── */
+      /* city markers (children of globe) */
       const markers = CITIES.map(c => {
-        const [x, y, z] = latLon(c.lat, c.lon, 1.005)
+        const [x, y, z] = latLon(c.lat, c.lon, R * 1.005)
         const pos = new Vector3(x, y, z)
-        const col = c.opp.statusType === 'ready' ? cyan : cobalt
-
-        const dot = new Mesh(
-          new SphereGeometry(0.013, 16, 16),
-          new MeshBasicMaterial({ color: col })
-        )
+        const col = new Color(c.opp.statusType === 'ready' ? 0x36c6e6 : 0x5b73ff)
+        const dot = new Mesh(new SphereGeometry(0.013, 16, 16), new MeshBasicMaterial({ color: col }))
         dot.position.copy(pos)
         globe.add(dot)
-
         const ping = new Mesh(
           new RingGeometry(0.02, 0.026, 32),
           new MeshBasicMaterial({ color: col, side: DoubleSide, transparent: true, opacity: 0, blending: AdditiveBlending })
         )
         ping.position.copy(pos)
-        ping.lookAt(pos.clone().multiplyScalar(2)) // lay flat, normal outward
+        ping.lookAt(pos.clone().multiplyScalar(2))
         globe.add(ping)
-
-        return { ping, base: 1 }
+        return { ping }
       })
 
-      /* ── Scrubbed timeline ─────────────────────── */
-      const tl = gsap.timeline({ paused: true })
-      // rotate Thailand to front + dolly in, in three legs
-      tl.to(globe.rotation,   { y: 2.78, duration: 1, ease: 'power1.inOut' }, 0)
-        .to(camera.position,  { z: 2.70, y: 0.05, duration: 1, ease: 'power2.inOut' }, 0)
-      tl.to(globe.rotation,   { y: 2.96, duration: 1, ease: 'power1.inOut' }, 1)
-        .to(camera.position,  { z: 1.95, y: -0.02, duration: 1, ease: 'power2.inOut' }, 1)
-        .to(camTarget,        { x: 0.12, y: 0.18, duration: 1, ease: 'power2.inOut' }, 1)
-      tl.to(camera.position,  { z: 1.50, duration: 1, ease: 'power2.inOut' }, 2)
-        .to(camTarget,        { x: 0.16, y: 0.22, duration: 1, ease: 'power2.inOut' }, 2)
+      /* ── Theme application (mutates existing objects, no rebuild) ──
+         The globe stays the NIGHT map in both themes (a dark "window to space").
+         Theme still drives the overlay cards (var tokens), just not the earth. */
+      const applyTheme = () => {
+        earthMat.map = nightTex
+        earthMat.emissiveMap = nightTex
+        earthMat.emissive = new Color(0xffe0b0)
+        earthMat.emissiveIntensity = 1.3
+        earthMat.color = new Color(0x8aa0c8)
+        ambient.intensity = 0.5
+        sun.intensity = 0.55
+        atmMat.uniforms.glow.value = new Color(0x36c6e6)
+        atmMat.uniforms.power.value = 3.0
+        atmMat.uniforms.strength.value = 0.95
+        starMat.color = new Color(0x9fb2d8); starMat.opacity = 0.7
+        renderer.setClearColor(new Color(0x0a0e1a), 1)
+        earthMat.needsUpdate = true
+      }
+      applyTheme()
 
-      /* ── RAF ───────────────────────────────────── */
+      /* ── Scrubbed view state (normalized zoom → responsive) ── */
+      const view = { zoom: 1.0, rotY: 2.30, tx: 0, ty: 0 }
+      const tl = gsap.timeline({ paused: true })
+      tl.to(view, { zoom: 0.82, rotY: 2.78, duration: 1, ease: 'power1.inOut' }, 0)
+      tl.to(view, { zoom: 0.62, rotY: 2.96, tx: 0.10, ty: 0.15, duration: 1, ease: 'power1.inOut' }, 1)
+      tl.to(view, { zoom: 0.50, tx: 0.15, ty: 0.20, duration: 1, ease: 'power2.inOut' }, 2)
+
+      /* ── RAF ── */
       const clock = new Clock()
       let scrollProg = 0
       const tick = () => {
         if (!running) return
         rafId = requestAnimationFrame(tick)
         const t = clock.getElapsedTime()
-        // gentle idle spin only before the journey really starts
-        globe.rotation.y += 0.0006 * (1 - Math.min(scrollProg / 0.15, 1))
+        globe.rotation.y = view.rotY
+        camera.position.z = fitZ * view.zoom
+        camTarget.set(view.tx, view.ty, 0)
         stars.rotation.y += 0.0002
-        // ping pulse (markers active from stage ~1.5 on)
         const active = scrollProg > 0.45
         markers.forEach((m, i) => {
           const k = (t * 0.9 + i * 0.4) % 1
@@ -266,14 +282,16 @@ export default function RadarGlobe() {
       }
       tick()
 
-      /* ── ScrollTrigger (window scroller) ───────── */
+      /* ── ScrollTrigger (window scroller) ── */
       st = ScrollTrigger.create({
         trigger: wrapRef.current,
         start: 'top top',
         end: '+=320%',
-        scrub: 1.1,
+        scrub: 0.6,
         pin: true,
         pinSpacing: true,
+        pinType: 'transform', // play nice with Lenis smooth scroll; avoids the
+                              // fixed↔static repaint flicker at pin release
         onUpdate: self => {
           scrollProg = self.progress
           tl.progress(self.progress)
@@ -283,8 +301,9 @@ export default function RadarGlobe() {
           setStageOnce(s)
         },
       })
-
       ScrollTrigger.refresh()
+
+      sceneRef.current = { applyTheme }
     }
 
     run()
@@ -292,6 +311,7 @@ export default function RadarGlobe() {
     return () => {
       running = false
       cancelAnimationFrame(rafId)
+      sceneRef.current = null
       try { ro?.disconnect() } catch {}
       try { st?.kill() } catch {}
       try {
@@ -303,21 +323,26 @@ export default function RadarGlobe() {
       } catch {}
       try { renderer?.dispose() } catch {}
     }
-  }, [isDark]) // re-init scene on theme toggle
+  }, []) // build once
+
+  /* ── Apply theme on toggle (no rebuild → no flicker) ── */
+  useEffect(() => {
+    sceneRef.current?.applyTheme()
+  }, [isDark])
 
   /* ───────────────────────── render ───────────────────────── */
 
   const caption = STAGE_COPY[isTh ? 'th' : 'en'][fallback ? 2 : stage]
+  const panelVisible = isNarrow ? (stage === 1 || stage === 2) : (stage >= 1)
 
-  /* shared overlay panel (market overview) — used by both 3D + fallback */
+  const cardShadow = '0 18px 50px oklch(0 0 0 / 0.35)'
+
   const MarketPanel = (
     <div
-      className="radar-card"
       style={{
-        width: 'min(300px, 78vw)',
+        width: 'min(300px, 80vw)',
         background: 'var(--surface)', border: '1px solid var(--border)',
-        borderRadius: 16, padding: 16, boxShadow: 'var(--card-shadow, 0 12px 40px oklch(0 0 0 / 0.28))',
-        backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)',
+        borderRadius: 16, padding: 16, boxShadow: cardShadow,
       }}
     >
       <div className="flex items-center gap-2" style={{ marginBottom: 12 }}>
@@ -347,21 +372,18 @@ export default function RadarGlobe() {
     </div>
   )
 
-  /* opportunity spotlight card */
   const SpotlightCard = ({ city }) => {
     const o = city.opp
     return (
       <div
-        className="radar-card"
         style={{
-          width: 'min(290px, 80vw)',
+          width: 'min(290px, 84vw)',
           background: 'var(--surface)', border: '1px solid var(--border)',
-          borderRadius: 14, padding: 14, boxShadow: 'var(--card-shadow, 0 12px 40px oklch(0 0 0 / 0.28))',
-          backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)',
-        }}
+          borderRadius: 14, padding: 14, boxShadow: cardShadow,
+          }}
       >
         <div className="flex items-center gap-2" style={{ marginBottom: 8 }}>
-          <span style={{ width: 7, height: 7, borderRadius: 99, background: 'var(--build, #2bb89a)', boxShadow: '0 0 8px var(--build, #2bb89a)' }} />
+          <span style={{ width: 7, height: 7, borderRadius: 99, background: 'var(--build)', boxShadow: '0 0 8px var(--build)' }} />
           <span style={{ fontSize: 12, fontWeight: 800, color: 'var(--text)' }}>{isTh ? city.nameTh : city.name}</span>
           <span style={{ marginLeft: 'auto' }}><DecisionChip type={o.statusType} size="sm" /></span>
         </div>
@@ -391,7 +413,7 @@ export default function RadarGlobe() {
     )
   }
 
-  /* ── Fallback (reduced-motion / no WebGL): static composition ── */
+  /* ── Fallback (reduced-motion / no WebGL) ── */
   if (fallback) {
     return (
       <section
@@ -406,7 +428,7 @@ export default function RadarGlobe() {
             position: 'absolute', inset: 0,
             backgroundImage: 'url(/textures/earth-night.jpg)',
             backgroundSize: 'cover', backgroundPosition: '72% 38%',
-            opacity: isDark ? 0.55 : 0.3,
+            opacity: isDark ? 0.55 : 0.4,
             maskImage: 'radial-gradient(circle at 60% 45%, #000 30%, transparent 78%)',
             WebkitMaskImage: 'radial-gradient(circle at 60% 45%, #000 30%, transparent 78%)',
           }}
@@ -434,20 +456,29 @@ export default function RadarGlobe() {
     <section
       ref={wrapRef}
       className="relative overflow-hidden"
-      style={{ height: '100vh', background: 'var(--bg)' }}
+      style={{ height: '100vh', background: 'oklch(0.09 0.015 262)' }}
       aria-label={isTh ? 'ทัวร์ตลาดแบบ 3 มิติ' : '3D market tour'}
     >
       <canvas ref={canvasRef} className="absolute inset-0 w-full h-full block" aria-hidden="true" />
 
-      {/* top-left brand + status */}
+      {/* Space-tone scrim: frames the globe and guarantees text contrast over
+          both the night and day textures, in both themes. Also blends the
+          section edges into the (dark) hero that follows. */}
+      <div
+        aria-hidden="true"
+        className="absolute inset-0 pointer-events-none"
+        style={{ background: 'linear-gradient(180deg, oklch(0.09 0.015 262) 0%, transparent 19%, transparent 70%, oklch(0.09 0.015 262) 100%)' }}
+      />
+
+      {/* top-left status */}
       <div className="absolute left-4 sm:left-6 top-5 flex items-center gap-2 pointer-events-none">
-        <div className="inline-flex items-center gap-2" style={{ minHeight: 30, padding: '0 12px', borderRadius: 999, border: '1px solid var(--border)', background: 'var(--surface)', fontSize: 11.5, fontWeight: 700, color: 'var(--text-2)' }}>
-          <Radar size={13} style={{ color: 'var(--primary)' }} />
+        <div className="inline-flex items-center gap-2" style={{ minHeight: 30, padding: '0 12px', borderRadius: 999, border: '1px solid oklch(1 0 0 / 0.22)', background: 'oklch(1 0 0 / 0.10)', fontSize: 11.5, fontWeight: 700, color: onGlobe.text2 }}>
+          <Radar size={13} style={{ color: onGlobe.accent }} />
           {isTh ? 'Scout · เรียลไทม์' : 'Scout · live scan'}
         </div>
       </div>
 
-      {/* headline — fades out as we zoom in */}
+      {/* headline — fades as we zoom in */}
       <div
         className="absolute left-4 sm:left-6 pointer-events-none"
         style={{
@@ -467,19 +498,19 @@ export default function RadarGlobe() {
         </p>
       </div>
 
-      {/* market overview panel — mobile: below headline; sm+: top right. From stage 1. */}
+      {/* market overview panel */}
       <div
         className="absolute pointer-events-none left-4 right-4 top-[42%] flex justify-center sm:left-auto sm:right-6 sm:top-[16%] sm:block"
         style={{
-          opacity: stage >= 1 ? 1 : 0,
-          transform: stage >= 1 ? 'translateY(0)' : 'translateY(16px)',
+          opacity: panelVisible ? 1 : 0,
+          transform: panelVisible ? 'translateY(0)' : 'translateY(16px)',
           transition: 'opacity .55s ease, transform .55s ease',
         }}
       >
         {MarketPanel}
       </div>
 
-      {/* spotlight cards — appear at the Thailand zoom (stage 2) */}
+      {/* spotlight cards — Thailand zoom (stage 2), desktop only */}
       <div
         className="absolute pointer-events-none hidden sm:block"
         style={{
@@ -507,20 +538,19 @@ export default function RadarGlobe() {
       <div
         className="absolute inset-x-0 flex justify-center px-4 pointer-events-none"
         style={{
-          bottom: '16%',
+          bottom: '14%',
           opacity: stage === 3 ? 1 : 0,
           transform: stage === 3 ? 'translateY(0)' : 'translateY(18px)',
           transition: 'opacity .55s ease, transform .55s ease',
         }}
       >
         <div
-          className="radar-card pointer-events-auto"
+          className="pointer-events-auto"
           style={{
             width: 'min(440px, 90vw)', textAlign: 'center',
             background: 'var(--surface)', border: '1px solid var(--border)',
-            borderRadius: 18, padding: '20px 22px', boxShadow: 'var(--card-shadow, 0 16px 50px oklch(0 0 0 / 0.32))',
-            backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)',
-          }}
+            borderRadius: 18, padding: '20px 22px', boxShadow: cardShadow,
+              }}
         >
           <div className="flex items-center justify-center gap-2" style={{ marginBottom: 8 }}>
             <DecisionChip type="ready" />
@@ -544,13 +574,13 @@ export default function RadarGlobe() {
         </div>
       </div>
 
-      {/* stage caption + scroll cue (bottom center) */}
-      <div className="absolute inset-x-0 flex flex-col items-center gap-2 pointer-events-none" style={{ bottom: '5%' }}>
-        <p key={stage} style={{ fontSize: 13, fontWeight: 700, textAlign: 'center', padding: '0 24px', color: stage === 3 ? onGlobe.accent : onGlobe.text2, textShadow: '0 1px 14px oklch(0.12 0.02 262 / 0.55)', animation: 'page-enter .4s ease both' }}>
+      {/* stage caption — kept clear of the globe at the very bottom */}
+      <div className="absolute inset-x-0 flex flex-col items-center gap-2 pointer-events-none" style={{ bottom: '4%' }}>
+        <p key={stage} style={{ fontSize: 13, fontWeight: 700, textAlign: 'center', padding: '0 24px', color: stage === 3 ? onGlobe.accent : onGlobe.text2, textShadow: '0 1px 14px oklch(0.10 0.02 262 / 0.7)', animation: 'page-enter .4s ease both' }}>
           {caption}
         </p>
         {stage < 3 && (
-          <p style={{ fontSize: 11, color: onGlobe.muted, opacity: 0.7 }}>
+          <p style={{ fontSize: 11, color: onGlobe.muted, opacity: 0.8, textShadow: '0 1px 10px oklch(0.10 0.02 262 / 0.6)' }}>
             {isTh ? 'เลื่อนเพื่อซูมเข้า' : 'scroll to zoom in'}
           </p>
         )}

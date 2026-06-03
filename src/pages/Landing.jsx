@@ -1,6 +1,9 @@
 import { useEffect, useRef, Fragment } from 'react'
 import { Link } from 'react-router-dom'
 import { gsap } from 'gsap'
+import { ScrollTrigger } from 'gsap/ScrollTrigger'
+import Lenis from 'lenis'
+import 'lenis/dist/lenis.css'
 import {
   AlertTriangle, ArrowRight, BarChart3, Brain,
   CalendarDays, CheckCircle2, ChevronRight, Clock,
@@ -29,6 +32,21 @@ const dp = {
   build:     'oklch(0.700 0.110 195)',
   buildSoft: 'oklch(0.300 0.050 195)',
   buildInk:  'oklch(0.820 0.105 195)',
+}
+
+const sectionShell = {
+  maxWidth: 1180,
+  margin: '0 auto',
+  padding: 'clamp(52px, 7vw, 88px) 24px',
+}
+
+const sectionTitle = {
+  margin: 0,
+  fontSize: 'clamp(1.375rem, 2.5vw, 1.875rem)',
+  fontWeight: 800,
+  letterSpacing: '-0.02em',
+  lineHeight: 1.16,
+  textWrap: 'balance',
 }
 
 const rm = () =>
@@ -86,10 +104,8 @@ function TopNav({ isTh, isDark, toggleLang, toggleTheme }) {
   return (
     <header
       style={{
-        position: 'sticky', top: 0, zIndex: 'var(--z-sticky)',
-        background: isDark ? 'oklch(0.165 0.018 262 / 0.94)' : 'oklch(0.984 0.004 262 / 0.94)',
-        backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)',
-        borderBottom: '1px solid var(--border)',
+        background: 'oklch(0.165 0.018 262)',
+        borderBottom: '1px solid oklch(0.310 0.022 262)',
       }}
     >
       <div
@@ -97,30 +113,33 @@ function TopNav({ isTh, isDark, toggleLang, toggleTheme }) {
         style={{ maxWidth: 1180, height: 64, margin: '0 auto' }}
       >
         <Link to="/" className="mr-auto" style={{ textDecoration: 'none' }}>
-          <Logo size={32} />
+          <Logo size={32} onDark />
         </Link>
 
+        {/* Dark nav in both themes → controls are always translucent light-glass. */}
         <button type="button" onClick={toggleLang}
           aria-label={isTh ? 'Switch to English' : 'เปลี่ยนเป็นภาษาไทย'}
-          className="focus-ring h-11 px-3 flex items-center justify-center rounded-xl text-[12px] font-bold tracking-wide transition-colors"
-          style={{ background: 'var(--surface)', border: '1px solid var(--border)', color: 'var(--text-2)' }}>
-          <span style={{ color: isTh ? 'var(--primary)' : 'var(--muted)' }}>TH</span>
-          <span style={{ color: 'var(--border-2)', margin: '0 5px' }}>/</span>
-          <span style={{ color: isTh ? 'var(--muted)' : 'var(--primary)' }}>EN</span>
+          className="focus-ring landing-control landing-lang h-11 px-3 flex items-center justify-center rounded-xl text-[12px] font-bold tracking-wide transition-colors"
+          style={{
+            background: 'oklch(1 0 0 / 0.10)',
+            border: '1px solid oklch(1 0 0 / 0.22)',
+            color: 'oklch(0.95 0.01 262)',
+          }}>
+          <span style={{ color: isTh ? 'oklch(0.97 0.012 262)' : 'oklch(0.66 0.02 262)' }}>TH</span>
+          <span className="landing-lang-separator" style={{ color: 'oklch(1 0 0 / 0.32)', margin: '0 5px' }}>/</span>
+          <span className="landing-lang-alt" style={{ color: isTh ? 'oklch(0.66 0.02 262)' : 'oklch(0.97 0.012 262)' }}>EN</span>
         </button>
 
         <button type="button" onClick={toggleTheme}
           aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
-          className="focus-ring w-11 h-11 flex items-center justify-center rounded-xl text-sm transition-colors"
-          style={{ background: 'var(--surface)', border: '1px solid var(--border)', color: 'var(--muted)' }}>
+          className="focus-ring landing-control landing-theme-toggle w-11 h-11 flex items-center justify-center rounded-xl text-sm transition-colors"
+          style={{
+            background: 'oklch(1 0 0 / 0.10)',
+            border: '1px solid oklch(1 0 0 / 0.22)',
+            color: 'oklch(0.95 0.01 262)',
+          }}>
           {isDark ? '☀️' : '🌙'}
         </button>
-
-        <Link to="/dashboard" className="hidden sm:inline-flex items-center gap-2 focus-ring"
-          style={{ minHeight: 44, padding: '0 16px', borderRadius: 10, background: 'var(--primary)', color: 'var(--on-primary)', textDecoration: 'none', fontSize: 13, fontWeight: 700 }}>
-          {isTh ? 'เปิดแดชบอร์ด' : 'Open dashboard'}
-          <ArrowRight size={14} strokeWidth={2.5} />
-        </Link>
       </div>
     </header>
   )
@@ -145,7 +164,7 @@ function SignalBoard({ isTh }) {
 
       <div className="flex items-center gap-2" style={{ minHeight: 48, padding: '0 16px', borderBottom: `1px solid ${dp.border}`, background: dp.surface2 }}>
         <Search size={15} style={{ color: dp.secondary }} />
-        <span style={{ fontSize: 12, color: dp.text2, fontWeight: 700 }}>Market brief, this week</span>
+        <span style={{ fontSize: 12, color: dp.text2, fontWeight: 700 }}>{isTh ? 'สรุปตลาดสัปดาห์นี้' : 'Market brief, this week'}</span>
         <span style={{ marginLeft: 'auto', fontSize: 11, color: dp.muted }}>TH + SEA + Global</span>
       </div>
 
@@ -235,8 +254,8 @@ function OpCard({ opp, lang, localize }) {
   }, [])
 
   return (
-    <article ref={ref} className="tilt group relative rounded-2xl p-5 flex flex-col gap-3"
-      style={{ background: 'var(--surface)', border: '1px solid var(--border)', boxShadow: 'var(--card-shadow)' }}>
+    <article ref={ref} className="tilt group relative landing-card rounded-2xl p-5 flex flex-col gap-3"
+      style={{ background: 'var(--surface)', border: '1px solid var(--border)' }}>
       <span className="glare" aria-hidden="true" />
       <div className="relative flex items-start gap-3">
         <div className="w-11 h-11 rounded-xl grid place-items-center text-xl flex-shrink-0" style={{ background: opp.iconBg }}>
@@ -343,6 +362,27 @@ export default function Landing() {
   const isTh = lang === 'th'
   const pageRef = useRef(null)
 
+  // Smooth scroll (Lenis), scoped to the Landing only — the app shell scrolls
+  // inside its own container, so Landing is the only window-scrolled route.
+  // Driven from gsap.ticker and wired to ScrollTrigger so the pinned globe
+  // (and every other trigger) stays in sync and the pin engages/releases
+  // smoothly instead of catching. Disabled under reduced-motion.
+  useEffect(() => {
+    if (rm()) return
+    const lenis = new Lenis({ duration: 1.05, smoothWheel: true, anchors: true })
+    lenis.on('scroll', ScrollTrigger.update)
+    const onTick = time => lenis.raf(time * 1000)
+    gsap.ticker.add(onTick)
+    gsap.ticker.lagSmoothing(0)
+    ScrollTrigger.refresh()
+    return () => {
+      lenis.off('scroll', ScrollTrigger.update)
+      gsap.ticker.remove(onTick)
+      gsap.ticker.lagSmoothing(500, 33) // restore GSAP default
+      lenis.destroy()
+    }
+  }, [])
+
   useEffect(() => {
     const prev = document.title
     document.title = isTh
@@ -366,11 +406,36 @@ export default function Landing() {
     return () => ctx.revert()
   }, [])
 
+  useEffect(() => {
+    if (rm()) return
+    const root = pageRef.current
+    if (!root) return
+    const items = gsap.utils.toArray(root.querySelectorAll('[data-reveal]'))
+    const obs = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (!entry.isIntersecting) return
+        const el = entry.target
+        const children = el.querySelectorAll('[data-reveal-child]')
+        gsap.from(children.length ? children : el, {
+          y: 18,
+          opacity: 0,
+          duration: 0.42,
+          stagger: 0.045,
+          ease: 'expo.out',
+          clearProps: 'opacity,transform',
+        })
+        obs.unobserve(el)
+      })
+    }, { threshold: 0.18, rootMargin: '0px 0px -8% 0px' })
+    items.forEach(el => obs.observe(el))
+    return () => obs.disconnect()
+  }, [])
+
   const first = opportunities[0]
   const preview3 = opportunities.slice(0, 3)
 
   return (
-    <div ref={pageRef} style={{ minHeight: '100vh', background: 'var(--bg)', color: 'var(--text)', overflowX: 'hidden' }}>
+    <div ref={pageRef} style={{ minHeight: '100vh', background: 'var(--bg)', color: 'var(--text)', overflowX: 'clip' }}>
       <TopNav isTh={isTh} isDark={isDark} toggleLang={toggleLang} toggleTheme={toggleTheme} />
 
       <main>
@@ -407,17 +472,17 @@ export default function Landing() {
               }}>
                 {isTh
                   ? 'Scout สแกนตลาด Skeptic โจมตีทุกจุดอ่อน Realist เช็กว่าทำได้จริงไหม แล้ว Synthesizer ตัดสินใจให้คุณทุกสัปดาห์'
-                  : 'Scout scans markets. Skeptic attacks every weak point. Realist checks what is actually buildable. Synthesizer decides — every week, automatically.'}
+                  : 'Scout scans markets. Skeptic attacks every weak point. Realist checks what is actually buildable. Synthesizer decides every week, automatically.'}
               </p>
 
               <div className="flex flex-wrap gap-3" style={{ marginTop: 28 }}>
-                <a href="#preview" className="inline-flex items-center gap-2 focus-ring"
+                <a href="#preview" className="inline-flex items-center gap-2 focus-ring btn-glow landing-action"
                   style={{ minHeight: 46, padding: '0 20px', borderRadius: 11, background: dp.primary, color: 'oklch(0.995 0.008 262)', textDecoration: 'none', fontSize: 15, fontWeight: 800 }}>
                   {isTh ? 'ดูโอกาสตลาด' : 'Browse market gaps'}
                   <ArrowRight size={16} strokeWidth={2.5} />
                 </a>
-                <Link to="/dashboard" className="inline-flex items-center gap-2 focus-ring"
-                  style={{ minHeight: 46, padding: '0 18px', borderRadius: 11, border: `1px solid ${dp.border}`, color: dp.text2, textDecoration: 'none', fontSize: 15, fontWeight: 700 }}>
+                <Link to="/dashboard" className="inline-flex items-center gap-2 focus-ring landing-action"
+                  style={{ minHeight: 46, padding: '0 18px', borderRadius: 11, border: `1px solid ${dp.border}`, color: dp.text2, background: dp.surface, textDecoration: 'none', fontSize: 15, fontWeight: 700 }}>
                   {isTh ? 'เปิดแดชบอร์ด' : 'Open dashboard'}
                   <ChevronRight size={15} />
                 </Link>
@@ -446,9 +511,9 @@ export default function Landing() {
         </section>
 
         {/* ══ §2 PIPELINE ═══════════════════════════════════════ */}
-        <section className="px-4 sm:px-6" style={{ maxWidth: 1180, margin: '0 auto', padding: '72px 24px 64px' }}>
-          <div style={{ maxWidth: 600, marginBottom: 48 }}>
-            <h2 style={{ margin: 0, fontSize: 'clamp(1.5rem, 3vw, 2rem)', fontWeight: 800, letterSpacing: '-0.02em', color: 'var(--text)', lineHeight: 1.15 }}>
+        <section className="px-4 sm:px-6" data-reveal style={sectionShell}>
+          <div data-reveal-child style={{ maxWidth: 660, marginBottom: 42 }}>
+            <h2 style={{ ...sectionTitle, color: 'var(--text)' }}>
               {isTh ? 'ระบบ AI ที่ทำงานแทนคุณทุกสัปดาห์' : 'An AI pipeline that runs every week for you'}
             </h2>
             <p style={{ margin: '12px 0 0', fontSize: 15, lineHeight: 1.7, color: 'var(--text-2)', maxWidth: '60ch' }}>
@@ -459,7 +524,7 @@ export default function Landing() {
           </div>
 
           {/* Tablet + Desktop pipeline (grid) */}
-          <div className="relative hidden md:block">
+          <div className="relative hidden md:block" data-reveal-child>
             {/* connecting line — only meaningful when all 6 are in one row */}
             <div className="absolute hidden lg:block" style={{ top: 20, left: 20, right: 20, height: 1, background: 'var(--border)' }} />
             <div className="grid grid-cols-3 lg:grid-cols-6 gap-4 lg:gap-4">
@@ -468,7 +533,7 @@ export default function Landing() {
           </div>
 
           {/* Mobile pipeline (vertical) */}
-          <div className="md:hidden flex flex-col">
+          <div className="md:hidden flex flex-col" data-reveal-child>
             {PHASES.map((p, i) => (
               <PipelineNodeMobile key={p.phase} phase={p} isTh={isTh} isLast={i === PHASES.length - 1} />
             ))}
@@ -476,12 +541,12 @@ export default function Landing() {
         </section>
 
         {/* ══ §3 DEBATE MOCKUP ══════════════════════════════════ */}
-        <section style={{ background: dp.bg, borderTop: `1px solid ${dp.border}`, borderBottom: `1px solid ${dp.border}` }}>
-          <div className="px-4 sm:px-6" style={{ maxWidth: 1180, margin: '0 auto', padding: 'clamp(48px, 6vw, 72px) 24px' }}>
+        <section data-reveal style={{ background: dp.bg, borderTop: `1px solid ${dp.border}`, borderBottom: `1px solid ${dp.border}` }}>
+          <div className="px-4 sm:px-6" style={sectionShell}>
 
-            <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3" style={{ marginBottom: 32 }}>
+            <div data-reveal-child className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3" style={{ marginBottom: 32 }}>
               <div style={{ maxWidth: 560 }}>
-                <h2 style={{ margin: 0, fontSize: 'clamp(1.3rem, 2.5vw, 1.75rem)', fontWeight: 800, letterSpacing: '-0.02em', color: dp.text, lineHeight: 1.2 }}>
+                <h2 style={{ ...sectionTitle, color: dp.text }}>
                   {isTh ? 'ทุกไอเดียถูก challenge ก่อนถึงคุณ' : 'Every idea gets challenged before it reaches you'}
                 </h2>
                 <p style={{ margin: '10px 0 0', fontSize: 14, lineHeight: 1.7, color: dp.text2 }}>
@@ -496,11 +561,11 @@ export default function Landing() {
             </div>
 
             {/* Three-panel debate */}
-            <div className="grid md:grid-cols-3 gap-px overflow-hidden rounded-xl"
+            <div data-reveal-child className="grid md:grid-cols-3 gap-px overflow-hidden rounded-xl landing-debate-grid"
               style={{ border: `1px solid ${dp.border}`, background: dp.border }}>
 
               {/* Panel 1: Brainstormer */}
-              <div style={{ background: dp.surface, padding: 20 }}>
+              <div className="landing-debate-panel" style={{ background: dp.surface, padding: 20 }}>
                 <div className="flex items-center gap-2" style={{ marginBottom: 16 }}>
                   <div className="grid place-items-center w-8 h-8 rounded-lg" style={{ background: dp.surface2, color: dp.secondary }}>
                     <Lightbulb size={15} strokeWidth={2} />
@@ -530,7 +595,7 @@ export default function Landing() {
               </div>
 
               {/* Panel 2: Skeptic */}
-              <div style={{ background: dp.surface, padding: 20 }}>
+              <div className="landing-debate-panel" style={{ background: dp.surface, padding: 20 }}>
                 <div className="flex items-center gap-2" style={{ marginBottom: 16 }}>
                   <div className="grid place-items-center w-8 h-8 rounded-lg" style={{ background: dp.surface2, color: 'oklch(0.660 0.160 25)' }}>
                     <AlertTriangle size={15} strokeWidth={2} />
@@ -559,7 +624,7 @@ export default function Landing() {
               </div>
 
               {/* Panel 3: Realist */}
-              <div style={{ background: dp.surface, padding: 20 }}>
+              <div className="landing-debate-panel" style={{ background: dp.surface, padding: 20 }}>
                 <div className="flex items-center gap-2" style={{ marginBottom: 16 }}>
                   <div className="grid place-items-center w-8 h-8 rounded-lg" style={{ background: dp.surface2, color: dp.primary }}>
                     <BarChart3 size={15} strokeWidth={2} />
@@ -606,12 +671,12 @@ export default function Landing() {
         </section>
 
         {/* ══ §4 OPPORTUNITY PREVIEW ════════════════════════════ */}
-        <section id="preview" style={{ background: 'var(--surface-2)', borderBottom: '1px solid var(--border)' }}>
-          <div className="px-4 sm:px-6" style={{ maxWidth: 1180, margin: '0 auto', padding: 'clamp(48px, 6vw, 72px) 24px' }}>
+        <section id="preview" data-reveal style={{ background: 'var(--surface-2)', borderBottom: '1px solid var(--border)' }}>
+          <div className="px-4 sm:px-6" style={sectionShell}>
 
-            <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4" style={{ marginBottom: 28 }}>
+            <div data-reveal-child className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4" style={{ marginBottom: 28 }}>
               <div>
-                <h2 style={{ margin: 0, fontSize: 'clamp(1.3rem, 2.5vw, 1.75rem)', fontWeight: 800, letterSpacing: '-0.02em', color: 'var(--text)', lineHeight: 1.15 }}>
+                <h2 style={{ ...sectionTitle, color: 'var(--text)' }}>
                   {isTh ? 'รายการที่ควรดูวันนี้' : 'What is worth checking today'}
                 </h2>
                 <p style={{ margin: '8px 0 0', fontSize: 14, color: 'var(--text-2)', lineHeight: 1.6, maxWidth: '56ch' }}>
@@ -620,14 +685,14 @@ export default function Landing() {
                     : 'Full details are in the dashboard.'}
                 </p>
               </div>
-              <Link to="/opportunities" className="inline-flex items-center gap-2 focus-ring flex-shrink-0"
+              <Link to="/opportunities" className="inline-flex items-center gap-2 focus-ring landing-action flex-shrink-0"
                 style={{ minHeight: 42, padding: '0 14px', borderRadius: 10, border: '1px solid var(--border)', background: 'var(--surface)', color: 'var(--primary)', textDecoration: 'none', fontSize: 13, fontWeight: 800 }}>
                 {isTh ? 'ดูทั้งหมด 6 รายการ' : 'View all 6 gaps'}
                 <ArrowRight size={14} />
               </Link>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div data-reveal-child className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {preview3.map(opp => (
                 <OpCard key={opp.id} opp={opp} lang={lang} localize={localize} />
               ))}
@@ -636,12 +701,12 @@ export default function Landing() {
         </section>
 
         {/* ══ §5 WEEKLY AUTOPILOT MOCKUP ════════════════════════ */}
-        <section style={{ background: dp.bg, borderBottom: `1px solid ${dp.border}` }}>
-          <div className="px-4 sm:px-6" style={{ maxWidth: 1180, margin: '0 auto', padding: 'clamp(48px, 6vw, 72px) 24px' }}>
+        <section data-reveal style={{ background: dp.bg, borderBottom: `1px solid ${dp.border}` }}>
+          <div className="px-4 sm:px-6" style={sectionShell}>
 
             <div className="grid md:grid-cols-2 gap-8 md:gap-16 items-center">
-              <div>
-                <h2 style={{ margin: 0, fontSize: 'clamp(1.3rem, 2.5vw, 1.75rem)', fontWeight: 800, letterSpacing: '-0.02em', color: dp.text, lineHeight: 1.2 }}>
+              <div data-reveal-child>
+                <h2 style={{ ...sectionTitle, color: dp.text }}>
                   {isTh ? 'รายงานอัตโนมัติทุกต้นสัปดาห์' : 'Automated report every Monday'}
                 </h2>
                 <p style={{ margin: '12px 0 0', fontSize: 15, lineHeight: 1.75, color: dp.text2 }}>
@@ -667,7 +732,7 @@ export default function Landing() {
               </div>
 
               {/* Mock weekly report card */}
-              <div style={{ border: `1px solid ${dp.border}`, borderRadius: 14, background: dp.surface, overflow: 'hidden' }}>
+              <div data-reveal-child className="landing-report-card" style={{ border: `1px solid ${dp.border}`, borderRadius: 14, background: dp.surface, overflow: 'hidden' }}>
                 {/* header */}
                 <div className="flex items-center gap-2" style={{ padding: '12px 16px', borderBottom: `1px solid ${dp.border}`, background: dp.surface2 }}>
                   <CalendarDays size={14} style={{ color: dp.secondary }} />
@@ -691,7 +756,7 @@ export default function Landing() {
                     const Icon = s.icon
                     return (
                       <div key={s.step}>
-                        <div className="flex items-start gap-3" style={{ padding: '8px 0' }}>
+                        <div className="landing-report-row flex items-start gap-3" style={{ padding: '8px 0' }}>
                           <div className="grid place-items-center w-6 h-6 rounded-md flex-shrink-0" style={{ background: dp.surface2, color: s.color, marginTop: 1 }}>
                             <Icon size={13} strokeWidth={2} />
                           </div>
@@ -733,11 +798,11 @@ export default function Landing() {
         </section>
 
         {/* ══ §6 CTA ════════════════════════════════════════════ */}
-        <section className="px-4 sm:px-6" style={{ maxWidth: 1180, margin: '0 auto', padding: 'clamp(48px, 6vw, 72px) 24px' }}>
-          <div className="grid md:grid-cols-[0.9fr_1fr] gap-8 md:gap-12 items-center"
+        <section className="px-4 sm:px-6" data-reveal style={sectionShell}>
+          <div data-reveal-child className="landing-cta grid md:grid-cols-[0.9fr_1fr] gap-8 md:gap-12 items-center"
             style={{ border: '1px solid var(--border)', borderRadius: 16, background: 'var(--surface)', padding: 'clamp(24px, 4vw, 42px)' }}>
             <div>
-              <h2 style={{ margin: 0, fontSize: 'clamp(1.3rem, 2.5vw, 1.75rem)', fontWeight: 800, letterSpacing: '-0.02em', color: 'var(--text)', lineHeight: 1.2, textWrap: 'balance' }}>
+              <h2 style={{ ...sectionTitle, color: 'var(--text)' }}>
                 {isTh
                   ? 'เปิดแดชบอร์ด แล้วเลือกโปรเจคต่อไปให้จบในรอบเดียว'
                   : 'Open the dashboard and pick the next project in one pass'}
@@ -749,12 +814,12 @@ export default function Landing() {
               </p>
             </div>
             <div className="flex flex-wrap md:justify-end gap-3">
-              <Link to="/dashboard" className="inline-flex items-center gap-2 focus-ring"
+              <Link to="/dashboard" className="inline-flex items-center gap-2 focus-ring btn-glow landing-action"
                 style={{ minHeight: 46, padding: '0 20px', borderRadius: 11, background: 'var(--primary)', color: 'var(--on-primary)', textDecoration: 'none', fontSize: 15, fontWeight: 800 }}>
                 {isTh ? 'เปิดแดชบอร์ด' : 'Open dashboard'}
                 <ArrowRight size={16} strokeWidth={2.5} />
               </Link>
-              <Link to="/opportunities" className="inline-flex items-center gap-2 focus-ring"
+              <Link to="/opportunities" className="inline-flex items-center gap-2 focus-ring landing-action"
                 style={{ minHeight: 46, padding: '0 18px', borderRadius: 11, border: '1px solid var(--border)', color: 'var(--text-2)', background: 'var(--surface-2)', textDecoration: 'none', fontSize: 15, fontWeight: 700 }}>
                 {isTh ? 'ดูรายการโอกาส' : 'Browse gaps'}
               </Link>
