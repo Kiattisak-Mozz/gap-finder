@@ -135,19 +135,75 @@
     display: grid;
     grid-template-columns: minmax(0, 1fr);
     align-items: center;
-    gap: 2rem;
+    gap: clamp(1.5rem, 4vw, 3rem);
     width: 100%;
   }
   .landing-hero-grid > * {
     min-width: 0;
   }
+  .landing-control,
+  .landing-action {
+    transition: background-color 180ms cubic-bezier(0.22, 1, 0.36, 1),
+      border-color 180ms cubic-bezier(0.22, 1, 0.36, 1),
+      color 180ms cubic-bezier(0.22, 1, 0.36, 1),
+      transform 140ms cubic-bezier(0.25, 1, 0.5, 1);
+  }
+  .landing-card {
+    box-shadow: 0 1px 2px oklch(0.50 0.05 262 / 0.05);
+    transition: border-color 180ms cubic-bezier(0.22, 1, 0.36, 1),
+      box-shadow 180ms cubic-bezier(0.22, 1, 0.36, 1),
+      background-color 180ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .landing-debate-panel {
+    min-width: 0;
+  }
+  .landing-report-card {
+    box-shadow: 0 1px 0 oklch(1 0 0 / 0.04), 0 16px 48px oklch(0 0 0 / 0.18);
+  }
+  .landing-report-row {
+    border-radius: 8px;
+    transition: background-color 180ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .landing-cta {
+    box-shadow: 0 1px 2px oklch(0.50 0.05 262 / 0.04);
+  }
+  @media (hover: hover) {
+    .landing-action:hover,
+    .landing-control:hover {
+      transform: translateY(-1px);
+      border-color: var(--border-2) !important;
+    }
+    .landing-card:hover {
+      border-color: var(--border-2) !important;
+      box-shadow: 0 1px 2px oklch(0.50 0.05 262 / 0.05), 0 8px 18px oklch(0.50 0.05 262 / 0.08);
+    }
+    .landing-report-row:hover {
+      background: oklch(1 0 0 / 0.035);
+    }
+  }
   @media (max-width: 639px) {
     .landing-top-nav {
-      max-width: 320px !important;
+      max-width: calc(100vw - 64px) !important;
+      width: calc(100vw - 64px) !important;
       margin-left: 16px !important;
-      margin-right: 0 !important;
+      margin-right: 16px !important;
       padding-left: 0 !important;
       padding-right: 0 !important;
+    }
+    .landing-top-nav a:first-child {
+      min-width: 0;
+    }
+    .landing-top-nav a:first-child span {
+      max-width: 96px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    /* Keep language + theme controls on mobile (bilingual product needs an
+       accessible language switch). Room was freed by dropping the nav CTA. */
+    .landing-lang {
+      padding-left: 10px;
+      padding-right: 10px;
     }
     header > div,
     main,
@@ -157,9 +213,11 @@
     .landing-hero-grid {
       max-width: 100vw;
       overflow: hidden;
+      padding-left: 16px !important;
+      padding-right: 16px !important;
     }
     .landing-hero-grid h1 {
-      max-width: min(320px, calc(100vw - 32px)) !important;
+      max-width: min(360px, calc(100vw - 32px)) !important;
       font-size: 1.875rem !important;
       line-height: 1.12 !important;
       letter-spacing: -0.015em !important;
@@ -167,7 +225,7 @@
     }
     .landing-hero-grid p,
     .landing-hero-grid aside {
-      max-width: min(320px, calc(100vw - 32px)) !important;
+      max-width: min(360px, calc(100vw - 32px)) !important;
     }
     .landing-hero-grid p {
       font-size: 0.9375rem !important;
@@ -177,7 +235,6 @@
   @media (min-width: 768px) {
     .landing-hero-grid {
       grid-template-columns: minmax(0, 1fr) 300px;
-      gap: 2rem;
     }
   }
   @media (min-width: 1024px) {
@@ -185,9 +242,6 @@
       grid-template-columns: minmax(0, 0.98fr) minmax(360px, 0.72fr);
       gap: 3rem;
     }
-  }
-  .hatch {
-    background-image: repeating-linear-gradient(45deg, var(--border-2), var(--border-2) 1.5px, transparent 1.5px, transparent 7px);
   }
   .ring-soft { box-shadow: 0 0 0 4px var(--ring); }
   .focus-ring:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
