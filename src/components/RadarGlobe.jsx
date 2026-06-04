@@ -287,11 +287,23 @@ export default function RadarGlobe() {
         trigger: wrapRef.current,
         start: 'top top',
         end: '+=320%',
-        scrub: 0.6,
+        // scrub: true = 1:1 with Lenis's smoothed position, no secondary lag.
+        // A numeric scrub adds its own catch-up tween on top of Lenis, which
+        // causes the oscillation when the scrollbar is dragged fast.
+        scrub: true,
         pin: true,
         pinSpacing: true,
-        pinType: 'transform', // play nice with Lenis smooth scroll; avoids the
-                              // fixed↔static repaint flicker at pin release
+        // pinType: 'transform' was removed. With transform-pins the element stays
+        // in the document flow, so native scroll displaces it briefly before the
+        // transform compensates — that one-frame gap is the visible flicker.
+        // Default 'fixed' pinning removes the element from flow, so native scroll
+        // cannot displace it; the flicker disappears.
+        //
+        // NOTE: anticipatePin is deliberately NOT used. Its velocity-based early-pin
+        // prediction fights Lenis's smoothing and stutters right at the pin
+        // boundary (the globe→hero seam). The one-frame "white flash" it would
+        // otherwise hide is instead killed by painting the .pin-spacer dark in
+        // index.css, so any momentary gap shows the space backdrop, not the page bg.
         onUpdate: self => {
           scrollProg = self.progress
           tl.progress(self.progress)
@@ -333,7 +345,9 @@ export default function RadarGlobe() {
   /* ───────────────────────── render ───────────────────────── */
 
   const caption = STAGE_COPY[isTh ? 'th' : 'en'][fallback ? 2 : stage]
-  const panelVisible = isNarrow ? (stage === 1 || stage === 2) : (stage >= 1)
+  // On narrow: only show the market panel at stage 2 (SEA zoom) so it never
+  // co-exists with the headline (stage 1) or the verdict card (stage 3).
+  const panelVisible = isNarrow ? stage === 2 : stage >= 1
 
   const cardShadow = '0 18px 50px oklch(0 0 0 / 0.35)'
 
@@ -342,21 +356,23 @@ export default function RadarGlobe() {
       style={{
         width: 'min(300px, 80vw)',
         background: 'var(--surface)', border: '1px solid var(--border)',
-        borderRadius: 16, padding: 16, boxShadow: cardShadow,
+        borderRadius: 16,
+        padding: isNarrow ? '12px 14px' : 16,
+        boxShadow: cardShadow,
       }}
     >
-      <div className="flex items-center gap-2" style={{ marginBottom: 12 }}>
+      <div className="flex items-center gap-2" style={{ marginBottom: isNarrow ? 8 : 12 }}>
         <Search size={14} style={{ color: 'var(--primary)' }} />
         <span style={{ fontSize: 12, fontWeight: 800, color: 'var(--text)' }}>
           {isTh ? 'ภาพรวมตลาด' : 'Market overview'}
         </span>
         <span style={{ marginLeft: 'auto', fontSize: 10, fontWeight: 700, color: 'var(--muted)' }}>TH · SEA</span>
       </div>
-      <div className="flex items-end gap-2" style={{ marginBottom: 12 }}>
-        <span className="tnum" style={{ fontSize: 30, fontWeight: 800, color: 'var(--text)', letterSpacing: '-0.02em', lineHeight: 1 }}>{total}</span>
-        <span style={{ fontSize: 11, color: 'var(--muted)', paddingBottom: 4 }}>{isTh ? 'โอกาสที่กำลังติดตาม' : 'gaps tracked'}</span>
+      <div className="flex items-end gap-2" style={{ marginBottom: isNarrow ? 8 : 12 }}>
+        <span className="tnum" style={{ fontSize: isNarrow ? 24 : 30, fontWeight: 800, color: 'var(--text)', letterSpacing: '-0.02em', lineHeight: 1 }}>{total}</span>
+        <span style={{ fontSize: 11, color: 'var(--muted)', paddingBottom: isNarrow ? 2 : 4 }}>{isTh ? 'โอกาสที่กำลังติดตาม' : 'gaps tracked'}</span>
       </div>
-      <div className="flex flex-col gap-2">
+      <div className="flex flex-col gap-1.5">
         {[
           { t: 'ready',    n: counts.build,    l: isTh ? 'พร้อม BUILD' : 'BUILD-ready' },
           { t: 'build',    n: counts.scoped,   l: isTh ? 'อยู่ในแผน' : 'In scope' },
@@ -480,7 +496,7 @@ export default function RadarGlobe() {
 
       {/* headline — fades as we zoom in */}
       <div
-        className="absolute left-4 sm:left-6 pointer-events-none"
+        className="absolute left-4 sm:left-6 pointer-events-none landing-globe-headline"
         style={{
           top: '18%', maxWidth: 'min(440px, 78vw)',
           opacity: stage <= 1 ? 1 : 0,
@@ -500,8 +516,13 @@ export default function RadarGlobe() {
 
       {/* market overview panel */}
       <div
-        className="absolute pointer-events-none left-4 right-4 top-[42%] flex justify-center sm:left-auto sm:right-6 sm:top-[16%] sm:block"
+        className="absolute pointer-events-none landing-globe-panel"
         style={{
+          left: isNarrow ? 16 : 'auto',
+          right: isNarrow ? 16 : 24,
+          top: isNarrow ? '36%' : '16%',
+          display: isNarrow ? 'flex' : 'block',
+          justifyContent: isNarrow ? 'center' : undefined,
           opacity: panelVisible ? 1 : 0,
           transform: panelVisible ? 'translateY(0)' : 'translateY(16px)',
           transition: 'opacity .55s ease, transform .55s ease',
@@ -512,7 +533,7 @@ export default function RadarGlobe() {
 
       {/* spotlight cards — Thailand zoom (stage 2), desktop only */}
       <div
-        className="absolute pointer-events-none hidden sm:block"
+        className="absolute pointer-events-none hidden sm:block landing-globe-spotlight"
         style={{
           left: '4%', top: '24%',
           opacity: stage === 2 ? 1 : 0,
@@ -523,7 +544,7 @@ export default function RadarGlobe() {
         <SpotlightCard city={CITIES[0]} />
       </div>
       <div
-        className="absolute pointer-events-none hidden md:block"
+        className="absolute pointer-events-none hidden md:block landing-globe-spotlight"
         style={{
           left: '12%', top: '54%',
           opacity: stage === 2 ? 1 : 0,
@@ -549,17 +570,19 @@ export default function RadarGlobe() {
           style={{
             width: 'min(440px, 90vw)', textAlign: 'center',
             background: 'var(--surface)', border: '1px solid var(--border)',
-            borderRadius: 18, padding: '20px 22px', boxShadow: cardShadow,
-              }}
+            borderRadius: 18,
+            padding: isNarrow ? '14px 16px' : '20px 22px',
+            boxShadow: cardShadow,
+          }}
         >
-          <div className="flex items-center justify-center gap-2" style={{ marginBottom: 8 }}>
+          <div className="flex items-center justify-center gap-2" style={{ marginBottom: isNarrow ? 6 : 8 }}>
             <DecisionChip type="ready" />
             <span style={{ fontSize: 12, color: 'var(--muted)' }}>{isTh ? 'คำแนะนำจาก Synthesizer' : 'Synthesizer verdict'}</span>
           </div>
-          <div style={{ fontSize: 17, fontWeight: 800, color: 'var(--text)', letterSpacing: '-0.01em' }}>
+          <div style={{ fontSize: isNarrow ? 15 : 17, fontWeight: 800, color: 'var(--text)', letterSpacing: '-0.01em' }}>
             {isTh ? featured.title : featured.titleEn}
           </div>
-          <div className="flex items-center justify-center gap-2 flex-wrap" style={{ marginTop: 16 }}>
+          <div className="flex items-center justify-center gap-2 flex-wrap" style={{ marginTop: isNarrow ? 12 : 16 }}>
             <Link to="/dashboard" className="inline-flex items-center gap-2 focus-ring"
               style={{ minHeight: 44, padding: '0 18px', borderRadius: 11, background: 'var(--primary)', color: 'var(--on-primary)', textDecoration: 'none', fontSize: 14, fontWeight: 800 }}>
               {isTh ? 'เปิดแดชบอร์ด' : 'Open dashboard'}
