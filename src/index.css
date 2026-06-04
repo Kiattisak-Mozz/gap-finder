@@ -181,15 +181,18 @@
       background: oklch(1 0 0 / 0.035);
     }
   }
-  @media (max-width: 639px) {
-    .landing-top-nav {
-      max-width: calc(100vw - 64px) !important;
-      width: calc(100vw - 64px) !important;
-      margin-left: 16px !important;
-      margin-right: 16px !important;
-      padding-left: 0 !important;
-      padding-right: 0 !important;
+  /* Touch feedback: pressed state for touch devices (where hover isn't available) */
+  @media (hover: none) {
+    .landing-action:active,
+    .landing-control:active {
+      opacity: 0.75;
+      transform: scale(0.98);
     }
+    .landing-card:active {
+      opacity: 0.88;
+    }
+  }
+  @media (max-width: 639px) {
     .landing-top-nav a:first-child {
       min-width: 0;
     }
@@ -223,14 +226,30 @@
       letter-spacing: -0.015em !important;
       text-wrap: pretty;
     }
-    .landing-hero-grid p,
-    .landing-hero-grid aside {
-      max-width: min(360px, calc(100vw - 32px)) !important;
-    }
     .landing-hero-grid p {
+      max-width: min(360px, calc(100vw - 32px)) !important;
       font-size: 0.9375rem !important;
       line-height: 1.72 !important;
     }
+    .landing-hero-grid aside {
+      width: 100% !important;
+      max-width: 100% !important;
+    }
+    /* Debate panels: tighter padding on small screens */
+    .landing-debate-panel {
+      padding: 14px !important;
+    }
+    /* Proof strip: tighter column gap on narrow */
+    .landing-proof-strip {
+      column-gap: 10px !important;
+    }
+  }
+  /* Landscape mobile: suppress globe overlay cards so they don't collide
+     on very short viewports (e.g. 375×667 rotated). The globe itself is
+     still visible and the CTA card repositions to the vertical center. */
+  @media (orientation: landscape) and (max-height: 500px) {
+    .landing-globe-panel { display: none !important; }
+    .landing-globe-spotlight { display: none !important; }
   }
   @media (min-width: 768px) {
     .landing-hero-grid {
@@ -246,6 +265,14 @@
   .ring-soft { box-shadow: 0 0 0 4px var(--ring); }
   .focus-ring:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
 }
+
+/* The globe is the only pinned element on the site. GSAP wraps it in a
+   .pin-spacer that sits in the page flow behind the fixed globe. Paint that
+   spacer the same dark space color as the globe section so any one-frame gap
+   during pin engage/release shows the backdrop, never the light page bg
+   ("white flash"). Kept outside @layer so GSAP's inline spacer styles (which
+   don't touch background) never out-rank it. */
+.pin-spacer { background: oklch(0.09 0.015 262); }
 
 /* ── Game-like motion layer (pointer-reactive, hover devices only) ── */
 .tilt { transform-style: preserve-3d; }

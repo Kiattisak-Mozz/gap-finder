@@ -171,10 +171,10 @@ function SignalBoard({ isTh }) {
       <div style={{ padding: 16 }}>
         <div style={{ border: `1px solid ${dp.border}`, borderRadius: 12, padding: 14, background: dp.bg }}>
           <div className="flex items-start gap-3">
-            <span style={{ fontSize: 24, lineHeight: 1 }}>{first.icon}</span>
+            <span style={{ fontSize: 24, lineHeight: 1, flexShrink: 0 }}>{first.icon}</span>
             <div className="min-w-0 flex-1">
-              <div className="flex gap-2 items-center flex-wrap" style={{ marginBottom: 6 }}>
-                <strong style={{ fontSize: 15, lineHeight: 1.35, color: dp.text }}>
+              <div className="flex gap-2 items-start flex-wrap" style={{ marginBottom: 6 }}>
+                <strong style={{ fontSize: 15, lineHeight: 1.35, color: dp.text, wordBreak: 'break-word' }}>
                   {isTh ? first.title : first.titleEn}
                 </strong>
                 <DecisionChip type={first.statusType} size="sm" />
@@ -369,17 +369,39 @@ export default function Landing() {
   // smoothly instead of catching. Disabled under reduced-motion.
   useEffect(() => {
     if (rm()) return
-    const lenis = new Lenis({ duration: 1.05, smoothWheel: true, anchors: true })
+    const lenis = new Lenis({ duration: 0.8, smoothWheel: true, anchors: true })
     lenis.on('scroll', ScrollTrigger.update)
     const onTick = time => lenis.raf(time * 1000)
     gsap.ticker.add(onTick)
     gsap.ticker.lagSmoothing(0)
     ScrollTrigger.refresh()
+
+    // When the native scrollbar is dragged, the native scroll position jumps
+    // while Lenis's smooth animation lags behind. With the pinned globe section,
+    // this mismatch causes visible jitter. Snap Lenis immediately to the native
+    // position during the drag so there's no lag to fight.
+    let scrollbarDragging = false
+    const onPointerDown = e => {
+      // document.documentElement.clientWidth excludes the scrollbar; clicks
+      // beyond that boundary are on the scrollbar track.
+      if (e.clientX > document.documentElement.clientWidth) {
+        scrollbarDragging = true
+        window.addEventListener('pointerup', () => { scrollbarDragging = false }, { once: true })
+      }
+    }
+    const onNativeScroll = () => {
+      if (scrollbarDragging) lenis.scrollTo(window.scrollY, { immediate: true })
+    }
+    document.addEventListener('pointerdown', onPointerDown)
+    window.addEventListener('scroll', onNativeScroll, { passive: true })
+
     return () => {
       lenis.off('scroll', ScrollTrigger.update)
       gsap.ticker.remove(onTick)
-      gsap.ticker.lagSmoothing(500, 33) // restore GSAP default
+      gsap.ticker.lagSmoothing(500, 33)
       lenis.destroy()
+      document.removeEventListener('pointerdown', onPointerDown)
+      window.removeEventListener('scroll', onNativeScroll)
     }
   }, [])
 
@@ -489,7 +511,7 @@ export default function Landing() {
               </div>
 
               {/* proof strip */}
-              <div className="grid grid-cols-3" style={{ marginTop: 32, paddingTop: 24, borderTop: `1px solid ${dp.border}`, gap: '0 16px' }}>
+              <div className="grid grid-cols-3 landing-proof-strip" style={{ marginTop: 32, paddingTop: 24, borderTop: `1px solid ${dp.border}`, gap: '0 16px' }}>
                 {[
                   { value: '6',     label: isTh ? 'โอกาสใน database' : 'gaps seeded' },
                   { value: '3',     label: isTh ? 'BUILD-ready' : 'BUILD-ready' },
@@ -735,11 +757,11 @@ export default function Landing() {
               <div data-reveal-child className="landing-report-card" style={{ border: `1px solid ${dp.border}`, borderRadius: 14, background: dp.surface, overflow: 'hidden' }}>
                 {/* header */}
                 <div className="flex items-center gap-2" style={{ padding: '12px 16px', borderBottom: `1px solid ${dp.border}`, background: dp.surface2 }}>
-                  <CalendarDays size={14} style={{ color: dp.secondary }} />
-                  <span style={{ fontSize: 12, fontWeight: 700, color: dp.text2 }}>
+                  <CalendarDays size={14} style={{ color: dp.secondary, flexShrink: 0 }} />
+                  <span style={{ fontSize: 12, fontWeight: 700, color: dp.text2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', minWidth: 0 }}>
                     {isTh ? 'รายงานประจำสัปดาห์ · 26 พ.ค. – 1 มิ.ย. 2026' : 'Weekly Report · 26 May – 1 Jun 2026'}
                   </span>
-                  <span style={{ marginLeft: 'auto', fontSize: 10, color: dp.build, fontWeight: 700 }}>
+                  <span style={{ marginLeft: 'auto', fontSize: 10, color: dp.build, fontWeight: 700, flexShrink: 0 }}>
                     {isTh ? 'ส่งแล้ว' : 'Delivered'}
                   </span>
                 </div>
