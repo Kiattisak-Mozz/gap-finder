@@ -3,7 +3,7 @@ import { gsap } from 'gsap'
 import { NavLink, Link } from 'react-router-dom'
 import {
   LayoutDashboard, ListTodo, ScanSearch,
-  BarChart2, FolderOpen, Settings, HelpCircle, LogOut, Download,
+  BarChart2, FolderOpen, Bot, Settings, HelpCircle, LogOut, Download,
 } from 'lucide-react'
 import { useLang } from '../../i18n/LanguageContext'
 import Logo from '../ui/Logo'
@@ -14,6 +14,7 @@ const menu = [
   { to: '/scanner',       icon: ScanSearch,      labelKey: 'nav.scanner' },
   { to: '/trends',        icon: BarChart2,       labelKey: 'nav.analytics' },
   { to: '/projects',      icon: FolderOpen,      labelKey: 'nav.projects' },
+  { to: '/monitor',       icon: Bot,             labelKey: 'nav.monitor' },
 ]
 const general = [
   { to: '/plugins', icon: Settings,   labelKey: 'nav.plugins' },

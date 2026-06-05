@@ -6,6 +6,7 @@ import Scanner from './pages/Scanner'
 import Projects from './pages/Projects'
 import Plugins from './pages/Plugins'
 import Landing from './pages/Landing'
+import TradingMonitor from './pages/TradingMonitor'
 
 export default function App() {
   return (
@@ -19,6 +20,7 @@ export default function App() {
             <Route path="/scanner"        element={<Scanner />} />
             <Route path="/projects"       element={<Projects />} />
             <Route path="/plugins"        element={<Plugins />} />
+            <Route path="/monitor"        element={<TradingMonitor />} />
           </Routes>
         </Layout>
       } />
