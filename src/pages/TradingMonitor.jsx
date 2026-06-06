@@ -293,11 +293,21 @@ function useBotFeed(url) {
     if (!url) { setConn(false); setData(null); return }
     let cancelled = false
 
+    // When served over HTTPS (e.g. Vercel), browser blocks HTTP fetch (mixed content).
+    // Route through the serverless proxy instead so the request is server-to-server.
+    const buildFetchUrl = (base) => {
+      const target = `${base}/state`
+      if (typeof window !== 'undefined' && window.location.protocol === 'https:') {
+        return `/api/bot-proxy?url=${encodeURIComponent(target)}`
+      }
+      return target
+    }
+
     const poll = async () => {
       try {
         const ctrl  = new AbortController()
         const timer = setTimeout(() => ctrl.abort(), 5000)
-        const res   = await fetch(`${url}/state`, { signal: ctrl.signal })
+        const res   = await fetch(buildFetchUrl(url), { signal: ctrl.signal })
         clearTimeout(timer)
         if (!res.ok) throw new Error()
         const json  = await res.json()
