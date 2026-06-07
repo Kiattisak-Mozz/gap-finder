@@ -2,7 +2,7 @@
    Caller passes already-localised strings; `children` is the optional action slot (right). */
 export default function PageHeader({ title, subtitle, children }) {
   return (
-    <header className="flex items-end justify-between pt-7 pb-6 flex-wrap gap-4">
+    <header className="flex items-start justify-between pt-5 sm:pt-7 pb-4 sm:pb-6 flex-wrap gap-3">
       <div>
         <h1 className="display text-[26px] sm:text-[30px] font-bold leading-none" style={{ color: 'var(--text)' }}>
           {title}

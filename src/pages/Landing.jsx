@@ -515,7 +515,7 @@ export default function Landing() {
                 {[
                   { value: '6',     label: isTh ? 'โอกาสใน database' : 'gaps seeded' },
                   { value: '3',     label: isTh ? 'BUILD-ready' : 'BUILD-ready' },
-                  { value: '~$13', label: isTh ? '/เดือน pipeline ครบ' : '/mo full pipeline' },
+                  { value: '~$13', label: isTh ? '/เดือน · ครบทุกระบบ' : '/mo · full pipeline' },
                 ].map(s => (
                   <div key={s.label} className="min-w-0">
                     <div className="tnum" style={{ fontSize: 22, fontWeight: 800, color: dp.primary, letterSpacing: '-0.02em' }}>{s.value}</div>

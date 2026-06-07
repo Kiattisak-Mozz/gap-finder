@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
+import { createPortal } from 'react-dom'
 import { gsap } from 'gsap'
 import { Link2, Link2Off, Terminal, X } from 'lucide-react'
 import { useLang } from '../i18n/LanguageContext'
@@ -79,7 +80,7 @@ function LogDrawer({ logs, open, onClose }) {
         gsap.set(backdrop, { opacity: 1 })
       } else {
         gsap.set(panel, { x: '100%' })
-        gsap.to(panel,    { x: 0,  duration: 0.38, ease: 'expo.out' })
+        gsap.to(panel,    { x: 0,  duration: 0.38, ease: 'expo.out', clearProps: 'transform' })
         gsap.fromTo(backdrop, { opacity: 0 }, { opacity: 1, duration: 0.22, ease: 'power2.out' })
       }
     } else {
@@ -105,6 +106,16 @@ function LogDrawer({ logs, open, onClose }) {
     }
   }, [logs.length, open])
 
+  // Lock main scroll while drawer is open
+  useEffect(() => {
+    const el = document.getElementById('app-scroll')
+    if (!el) return
+    if (open) {
+      el.style.overflow = 'hidden'
+      return () => { el.style.overflow = '' }
+    }
+  }, [open])
+
   if (!mounted) return null
 
   const filtered = filter === 'all' ? logs : logs.filter(e => e.type === filter)
@@ -113,7 +124,7 @@ function LogDrawer({ logs, open, onClose }) {
     [key]: key === 'all' ? logs.length : logs.filter(e => e.type === key).length,
   }), {})
 
-  return (
+  return createPortal(
     <>
       {/* Backdrop */}
       <div ref={backdropRef}
@@ -136,7 +147,8 @@ function LogDrawer({ logs, open, onClose }) {
         }}>
 
         {/* Header */}
-        <div className="flex items-center justify-between px-5 pt-5 pb-4 flex-shrink-0">
+        <div className="flex items-center justify-between px-5 pb-4 flex-shrink-0"
+          style={{ paddingTop: 'max(1.25rem, env(safe-area-inset-top))' }}>
           <div className="flex items-center gap-2.5">
             <Terminal size={15} strokeWidth={2} style={{ color: 'var(--primary)' }} />
             <span className="text-[15px] font-bold" style={{ color: 'var(--text)' }}>Activity Log</span>
@@ -196,12 +208,12 @@ function LogDrawer({ logs, open, onClose }) {
                       style={{ background: logAccent(entry.type) }} />
                     {/* Content */}
                     <div className="flex-1 min-w-0">
-                      <div className="flex items-baseline gap-2 flex-wrap">
+                      <div className="flex items-baseline gap-2 min-w-0">
                         <span className="tnum text-[10px] flex-shrink-0" style={{ color: 'var(--muted)' }}>
                           {entry.time}
                         </span>
-                        <span className="text-[12px] leading-relaxed break-words"
-                          style={{ color: logText(entry.type) }}>
+                        <span className="text-[12px] leading-relaxed flex-1 min-w-0"
+                          style={{ color: logText(entry.type), overflowWrap: 'anywhere' }}>
                           {entry.msg}
                         </span>
                       </div>
@@ -219,7 +231,8 @@ function LogDrawer({ logs, open, onClose }) {
           </p>
         </div>
       </aside>
-    </>
+    </>,
+    document.body
   )
 }
 
