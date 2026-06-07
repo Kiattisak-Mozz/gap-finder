@@ -81,7 +81,7 @@ export default function Layout({ children }) {
         style={{ background: 'var(--surface)', border: '1px solid var(--border)', boxShadow: 'var(--card-shadow)' }}>
 
         {/* Top bar */}
-        <header className="flex-shrink-0 flex items-center gap-2 sm:gap-3 px-4 sm:px-6 h-[60px] sm:h-[64px]"
+        <header className="flex-shrink-0 flex items-center gap-2 sm:gap-3 px-3 sm:px-6 h-[56px] sm:h-[64px]"
           style={{ borderBottom: '1px solid var(--border)' }}>
 
           <button onClick={() => setMobileOpen(true)}
@@ -145,8 +145,8 @@ export default function Layout({ children }) {
               {isDark ? '☀️' : '🌙'}
             </button>
 
-            {/* User — pill on sm+, avatar-only on mobile */}
-            <button className="focus-ring flex items-center gap-2.5 rounded-xl p-0 sm:px-3 sm:py-1.5 cursor-pointer sm:ml-1 sm:border"
+            {/* User — pill on sm+, hidden on mobile (sidebar has profile) */}
+            <button className="focus-ring hidden sm:flex items-center gap-2.5 rounded-xl p-0 sm:px-3 sm:py-1.5 cursor-pointer sm:ml-1 sm:border"
               aria-label="Open account menu"
               style={{ background: 'var(--surface)', borderColor: 'var(--border)' }}>
               <div className="w-7 h-7 flex items-center justify-center flex-shrink-0">
